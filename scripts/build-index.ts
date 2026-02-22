@@ -155,7 +155,7 @@ async function buildIndex() {
     process.stdout.write(`  ✓ ${title.slice(0, 50)}\n`);
   }
 
-  const outPath = "app/data/knowledge-index.json";
+  const outPath = "public/data/knowledge-index.json";
   mkdirSync(dirname(outPath), { recursive: true });
   const json = JSON.stringify(chunks);
   writeFileSync(outPath, json);
