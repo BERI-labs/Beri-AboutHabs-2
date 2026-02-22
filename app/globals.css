@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --beri-navy:         #0B1A3B;
+  --beri-navy-light:   #122552;
+  --beri-navy-mid:     #1A3068;
+  --beri-blue:         #2B4A8E;
+  --beri-blue-light:   #4A6DB5;
+  --beri-gold:         #D4A843;
+  --beri-gold-light:   #E8C96A;
+  --beri-white:        #F0F2F7;
+  --beri-white-soft:   #B8BDD0;
+  --beri-surface:      #0E1F45;
+  --beri-user-bubble:  #1C3A6E;
+  --beri-error:        #E85454;
+  --beri-success:      #4ADE80;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--beri-navy);
+  color: var(--beri-white);
+  font-family: "DM Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--beri-navy);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--beri-blue);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--beri-blue-light);
+}
+
+/* Gold blinking cursor during streaming */
+.beri-cursor::after {
+  content: "▋";
+  color: var(--beri-gold);
+  animation: blink 1s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Gold progress bar */
+.beri-progress-bar {
+  height: 3px;
+  background: linear-gradient(90deg, var(--beri-gold), var(--beri-gold-light));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Prose styling for markdown-like content in bubbles */
+.beri-prose p {
+  margin-bottom: 0.5rem;
+}
+
+.beri-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.beri-prose ul,
+.beri-prose ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.beri-prose li {
+  margin-bottom: 0.25rem;
+}
+
+.beri-prose code {
+  background: rgba(212, 168, 67, 0.15);
+  color: var(--beri-gold-light);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.875em;
+}
+
+.beri-prose strong {
+  color: var(--beri-white);
+  font-weight: 600;
+}
+
+/* Reasoning accordion content */
+.reasoning-content {
+  color: var(--beri-white-soft);
+  font-style: italic;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Chip animation */
+.starter-chip {
+  transition: all 0.15s ease;
+}
+
+.starter-chip:hover {
+  background-color: rgba(212, 168, 67, 0.1);
+  border-color: var(--beri-gold-light);
+  color: var(--beri-gold-light);
+  transform: translateY(-1px);
+}
+
+.starter-chip:active {
+  transform: translateY(0);
+}
