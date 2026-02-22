@@ -5,6 +5,7 @@ import { pipeline, type FeatureExtractionPipeline } from "@huggingface/transform
 let db: ReturnType<typeof create> extends Promise<infer T> ? T : never;
 let embedder: FeatureExtractionPipeline | null = null;
 let embedderReady = false;
+let basePath = "";
 
 const CURRENT_INDEX_VERSION = "v1";
 
@@ -73,7 +74,7 @@ async function init() {
   if (!loaded) {
     // @ts-expect-error create returns typed DB
     db = await create({ schema: SCHEMA });
-    const response = await fetch("/data/knowledge-index.json");
+    const response = await fetch(`${basePath}/data/knowledge-index.json`);
     const chunks = await response.json();
     for (const chunk of chunks) {
       // @ts-expect-error insert expects typed DB
@@ -169,8 +170,11 @@ async function handleSearch(query: string, id: string) {
 
 // ── Message router ────────────────────────────────────────────────────────────
 
-self.onmessage = (e: MessageEvent<{ type: string; query?: string; id?: string }>) => {
+self.onmessage = (e: MessageEvent<{ type: string; query?: string; id?: string; basePath?: string }>) => {
   const { type, query, id } = e.data;
-  if (type === "init") init();
+  if (type === "init") {
+    basePath = e.data.basePath ?? "";
+    init();
+  }
   if (type === "search" && query && id) handleSearch(query, id);
 };

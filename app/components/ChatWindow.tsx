@@ -66,7 +66,10 @@ export function ChatWindow() {
       console.error("Retrieval worker error:", err);
     };
 
-    worker.postMessage({ type: "init" });
+    // Pass basePath so the worker can fetch /data/knowledge-index.json correctly
+    // process.env.NEXT_PUBLIC_BASE_PATH is set by next.config.mjs via env injection
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+    worker.postMessage({ type: "init", basePath: base });
 
     const rag = new RAGOrchestrator(worker);
     orchestratorRef.current = rag;
