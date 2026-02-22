@@ -49,7 +49,7 @@ async function idbPut(key: string, value: string): Promise<void> {
 
 // ── Orama schemas ─────────────────────────────────────────────────────────────
 
-// Phase 1: text-only (available immediately, no vector[384] to cause tokenizer errors)
+// Text-only schema (fallback when knowledge-index.json has no embeddings)
 const TEXT_SCHEMA = {
   text: "string",
   title: "string",
@@ -57,7 +57,7 @@ const TEXT_SCHEMA = {
   chunkIndex: "number",
 } as const;
 
-// Phase 2: vector-enhanced (used after embedder finishes building embeddings)
+// Full schema with pre-computed embeddings (primary path)
 const VECTOR_SCHEMA = {
   text: "string",
   title: "string",
@@ -66,13 +66,13 @@ const VECTOR_SCHEMA = {
   chunkIndex: "number",
 } as const;
 
-// ── Markdown parser / chunker ─────────────────────────────────────────────────
+// ── Markdown parser / chunker (fallback only) ────────────────────────────────
 
 function classifySection(title: string): string {
   const t = title.toLowerCase();
   if (
     t.includes("fee") || t.includes("payment") || t.includes("vat") ||
-    t.includes("bursary") || t.includes("scholarship")
+    t.includes("bursar") || t.includes("scholarship")
   ) return "Financial";
   if (
     t.includes("admissions") || t.includes("entry") || t.includes("occasional") ||
@@ -185,7 +185,9 @@ async function init() {
 }
 
 async function _init() {
-  let textChunks: TextChunk[] = [];
+  // Tracks whether we need to compute embeddings on-device (fallback path)
+  let textOnlyChunks: TextChunk[] = [];
+  let hasPrecomputedEmbeddings = false;
 
   // 1. Try warm boot from IndexedDB (contains vector-enhanced DB from a prior run)
   let warmBooted = false;
@@ -196,6 +198,7 @@ async function _init() {
       if (serialised) {
         db = await restore("json", serialised);
         warmBooted = true;
+        hasPrecomputedEmbeddings = true;
       }
     }
   } catch {
@@ -203,27 +206,72 @@ async function _init() {
   }
 
   if (!warmBooted) {
-    // Phase 1: Fetch raw markdown, chunk on device, build text-only Orama
-    // BM25 full-text search is available after this point.
+    // 2. Cold init — try loading pre-built knowledge-index.json first (per spec §10).
+    //    This file contains chunks with pre-computed 384-dim embeddings from the
+    //    build script, so hybrid search is available as soon as the embedder loads
+    //    (embedder is only needed for query-time embedding, not chunk embedding).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let indexChunks: any[] = [];
+
     try {
-      const response = await fetch(`${basePath}/data/Haberdashers_Boys_School_Dataset_Improved.md`);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const markdown = await response.text();
-      textChunks = parseMarkdown(markdown);
-    } catch (e) {
-      console.warn("Failed to load knowledge base:", e);
+      const response = await fetch(`${basePath}/data/knowledge-index.json`);
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          indexChunks = data;
+          // Check if the first chunk has a non-empty embedding array
+          hasPrecomputedEmbeddings =
+            Array.isArray(indexChunks[0]?.embedding) &&
+            indexChunks[0].embedding.length === 384;
+        }
+      }
+    } catch {
+      // Fall through to .md fallback
     }
 
-    db = await create({ schema: TEXT_SCHEMA });
-    for (const chunk of textChunks) {
-      await insert(db, chunk);
+    if (indexChunks.length > 0) {
+      // Primary path: use pre-built index
+      const schema = hasPrecomputedEmbeddings ? VECTOR_SCHEMA : TEXT_SCHEMA;
+      db = await create({ schema });
+      for (const chunk of indexChunks) {
+        if (hasPrecomputedEmbeddings) {
+          await insert(db, chunk);
+        } else {
+          // Strip embedding field if schema is text-only
+          const { embedding: _, ...rest } = chunk;
+          await insert(db, rest);
+          // Track for later on-device embedding
+          textOnlyChunks.push(rest as TextChunk);
+        }
+      }
+    } else {
+      // Fallback: fetch raw markdown, chunk on device, build text-only Orama.
+      // BM25 full-text search is available after this point.
+      try {
+        const response = await fetch(
+          `${basePath}/data/Haberdashers_Boys_School_Dataset_Improved.md`,
+        );
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const markdown = await response.text();
+        textOnlyChunks = parseMarkdown(markdown);
+      } catch (e) {
+        console.warn("Failed to load knowledge base:", e);
+      }
+
+      db = await create({ schema: TEXT_SCHEMA });
+      for (const chunk of textOnlyChunks) {
+        await insert(db, chunk);
+      }
     }
   }
 
-  // Signal ready — BM25 text search works from here
+  // Signal ready — BM25 text search works from here (hybrid if pre-computed embeddings loaded)
   self.postMessage({ type: "orama-ready" });
 
-  // 2. Load embedder in the background (~23 MB ONNX download)
+  // 3. Load embedder in the background (~23 MB ONNX download).
+  //    With pre-computed embeddings, the embedder is only needed for query-time
+  //    embedding (~20–30ms per query). Without pre-computed embeddings (fallback),
+  //    it also re-embeds all chunks on-device before hybrid search is available.
   try {
     embedder = await pipeline(
       "feature-extraction",
@@ -239,17 +287,19 @@ async function _init() {
       },
     );
 
-    if (!warmBooted && textChunks.length > 0) {
-      // Phase 2: Generate on-device embeddings, rebuild Orama with vector schema
+    if (!warmBooted && !hasPrecomputedEmbeddings && textOnlyChunks.length > 0) {
+      // Fallback Phase 2: generate on-device embeddings, rebuild Orama with vector schema
       const vectorDb = await create({ schema: VECTOR_SCHEMA });
-      for (const chunk of textChunks) {
+      for (const chunk of textOnlyChunks) {
         const output = await embedder(chunk.text, { pooling: "mean", normalize: true });
         const embedding = Array.from(output.data as Float32Array);
         await insert(vectorDb, { ...chunk, embedding });
       }
       db = vectorDb;
+    }
 
-      // Cache the vector-enhanced DB so future visits skip cold init
+    // Cache the DB so future visits skip cold init
+    if (!warmBooted) {
       try {
         const serialised = await persist(db, "json") as string;
         await idbPut("beri-orama", serialised);

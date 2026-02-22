@@ -16,7 +16,7 @@ function classifySection(title: string): string {
     t.includes("fee") ||
     t.includes("payment") ||
     t.includes("vat") ||
-    t.includes("bursary") ||
+    t.includes("bursar") ||
     t.includes("scholarship")
   )
     return "Financial";
