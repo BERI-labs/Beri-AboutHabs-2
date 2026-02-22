@@ -1,9 +1,11 @@
 import { create, insert, search } from "@orama/orama";
 import { persist, restore } from "@orama/plugin-data-persistence";
-import { pipeline, type FeatureExtractionPipeline } from "@huggingface/transformers";
+import { pipeline } from "@huggingface/transformers";
 
-let db: ReturnType<typeof create> extends Promise<infer T> ? T : never;
-let embedder: FeatureExtractionPipeline | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let db: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let embedder: any = null;
 let embedderReady = false;
 let basePath = "";
 
@@ -62,7 +64,6 @@ async function init() {
     if (version === CURRENT_INDEX_VERSION) {
       const serialised = await loadFromIDB("beri-orama");
       if (serialised) {
-        // @ts-expect-error restore returns typed DB
         db = await restore("json", serialised);
         loaded = true;
       }
@@ -72,18 +73,15 @@ async function init() {
   }
 
   if (!loaded) {
-    // @ts-expect-error create returns typed DB
     db = await create({ schema: SCHEMA });
     const response = await fetch(`${basePath}/data/knowledge-index.json`);
     const chunks = await response.json();
     for (const chunk of chunks) {
-      // @ts-expect-error insert expects typed DB
       await insert(db, chunk);
     }
 
     try {
-      // @ts-expect-error persist expects typed DB
-      const serialised = await persist(db, "json");
+      const serialised = await persist(db, "json") as string;
       await saveToIDB("beri-orama", serialised);
       (self as unknown as { localStorage?: Storage }).localStorage?.setItem(
         "beri-orama-version",
@@ -122,14 +120,14 @@ async function init() {
 // ── Search handler ────────────────────────────────────────────────────────────
 
 async function handleSearch(query: string, id: string) {
-  let results: Awaited<ReturnType<typeof search>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let results: any;
 
   if (embedderReady && embedder) {
     // Hybrid search
     const output = await embedder(query, { pooling: "mean", normalize: true });
     const queryVector = Array.from(output.data as Float32Array);
 
-    // @ts-expect-error search expects typed DB
     results = await search(db, {
       term: query,
       mode: "hybrid",
@@ -143,7 +141,6 @@ async function handleSearch(query: string, id: string) {
     });
   } else {
     // Fulltext-only fallback
-    // @ts-expect-error search expects typed DB
     results = await search(db, {
       term: query,
       mode: "fulltext",
@@ -152,7 +149,8 @@ async function handleSearch(query: string, id: string) {
   }
 
   const mapped = results.hits
-    .map((hit: { document: { title: string; text: string; chunkIndex: number }; score: number }) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((hit: any) => ({
       chunk: {
         title: hit.document.title,
         text: hit.document.text,
@@ -160,10 +158,8 @@ async function handleSearch(query: string, id: string) {
       },
       score: hit.score,
     }))
-    .sort(
-      (a: { chunk: { chunkIndex: number } }, b: { chunk: { chunkIndex: number } }) =>
-        a.chunk.chunkIndex - b.chunk.chunkIndex,
-    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .sort((a: any, b: any) => a.chunk.chunkIndex - b.chunk.chunkIndex);
 
   self.postMessage({ type: "search-results", id, results: mapped });
 }
