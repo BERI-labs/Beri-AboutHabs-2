@@ -344,7 +344,7 @@ export function ChatWindow() {
       {/* Input */}
       <InputBar
         onSend={sendMessage}
-        disabled={isStreaming || appState === "loading"}
+        disabled={isStreaming || workerStatus === "loading"}
         placeholder={
           workerStatus === "loading"
             ? "Loading…"

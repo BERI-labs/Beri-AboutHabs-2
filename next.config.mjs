@@ -22,11 +22,28 @@ const nextConfig = {
         crypto: false,
       };
     }
+
+    // Fix "import.meta cannot be used outside of module code" from Terser.
+    // ONNX Runtime (shipped inside @huggingface/transformers) uses .mjs bundles
+    // that contain import.meta. Webpack defaults to javascript/auto for bundled
+    // files, which forbids import.meta. Marking .mjs files as javascript/esm
+    // tells Terser to use module mode and allows import.meta through.
+    config.module.rules.push({
+      test: /\.mjs$/,
+      type: "javascript/esm",
+      resolve: { fullySpecified: false },
+    });
+
+    // Exclude the server-side ONNX Runtime — it's not available in the browser.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "onnxruntime-node$": false,
+    };
+
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true,
       topLevelAwait: true,
-      layers: true,
     };
     return config;
   },
