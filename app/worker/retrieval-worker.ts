@@ -1,6 +1,11 @@
 import { create, insert, search } from "@orama/orama";
 import { persist, restore } from "@orama/plugin-data-persistence";
-import { pipeline } from "@huggingface/transformers";
+import { pipeline, env } from "@huggingface/transformers";
+
+// Force single-threaded WASM — avoids onnxruntime-web trying to spawn
+// em-pthread workers via new Worker(import.meta.url, ...) which breaks
+// under webpack's CommonJS bundling of onnxruntime-web.
+if (env.backends.onnx.wasm) env.backends.onnx.wasm.numThreads = 1;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let db: any = null;
@@ -165,6 +170,21 @@ function parseMarkdown(markdown: string): TextChunk[] {
 // ── Initialisation ────────────────────────────────────────────────────────────
 
 async function init() {
+  try {
+    await _init();
+  } catch (e) {
+    // Last-resort safety net — orama-ready must always fire so the UI doesn't
+    // hang on the loading screen regardless of what went wrong.
+    console.error("Worker init failed unexpectedly:", e);
+    if (!db) {
+      try { db = await create({ schema: TEXT_SCHEMA }); } catch { /* ignore */ }
+    }
+    self.postMessage({ type: "orama-ready" });
+    self.postMessage({ type: "embedder-fallback" });
+  }
+}
+
+async function _init() {
   let textChunks: TextChunk[] = [];
 
   // 1. Try warm boot from IndexedDB (contains vector-enhanced DB from a prior run)
@@ -186,7 +206,7 @@ async function init() {
     // Phase 1: Fetch raw markdown, chunk on device, build text-only Orama
     // BM25 full-text search is available after this point.
     try {
-      const response = await fetch(`${basePath}/data/habs.md`);
+      const response = await fetch(`${basePath}/data/Haberdashers_Boys_School_Dataset_Improved.md`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const markdown = await response.text();
       textChunks = parseMarkdown(markdown);

@@ -52,7 +52,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       {/* Beri avatar */}
       <div className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden border border-[#D4A843]/40 mt-0.5">
         <img
-          src="/favicon.svg"
+          src="/favicon.png"
           alt="Beri"
           className="w-full h-full object-cover"
           onError={(e) => {

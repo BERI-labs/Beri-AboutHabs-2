@@ -34,6 +34,7 @@ const nextConfig = {
       resolve: { fullySpecified: false },
     });
 
+
     // Exclude the server-side ONNX Runtime — it's not available in the browser.
     config.resolve.alias = {
       ...config.resolve.alias,
