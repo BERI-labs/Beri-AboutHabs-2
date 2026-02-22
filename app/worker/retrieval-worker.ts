@@ -74,21 +74,27 @@ async function init() {
 
   if (!loaded) {
     db = await create({ schema: SCHEMA });
-    const response = await fetch(`${basePath}/data/knowledge-index.json`);
-    const chunks = await response.json();
-    for (const chunk of chunks) {
-      await insert(db, chunk);
-    }
-
     try {
-      const serialised = await persist(db, "json") as string;
-      await saveToIDB("beri-orama", serialised);
-      (self as unknown as { localStorage?: Storage }).localStorage?.setItem(
-        "beri-orama-version",
-        CURRENT_INDEX_VERSION,
-      );
-    } catch {
-      // Persistence failure is non-fatal; next load will cold-init again
+      const response = await fetch(`${basePath}/data/knowledge-index.json`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const chunks = await response.json();
+      for (const chunk of chunks) {
+        await insert(db, chunk);
+      }
+      try {
+        const serialised = await persist(db, "json") as string;
+        await saveToIDB("beri-orama", serialised);
+        (self as unknown as { localStorage?: Storage }).localStorage?.setItem(
+          "beri-orama-version",
+          CURRENT_INDEX_VERSION,
+        );
+      } catch {
+        // Persistence failure is non-fatal; next load will cold-init again
+      }
+    } catch (e) {
+      // Index fetch failed — Orama starts empty; BM25/vector searches return nothing
+      // but the app still loads and the embedder fallback path still works.
+      console.warn("Failed to load knowledge index:", e);
     }
   }
 
