@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Ask Beri anything about Haberdashers' Boys' School — admissions, fees, curriculum, sport, and school life.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.png",
   },
 };
 

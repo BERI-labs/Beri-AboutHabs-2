@@ -183,7 +183,7 @@ export function ChatWindow() {
         style={{ background: "var(--beri-navy)" }}
       >
         <img
-          src="/beri-logo.svg"
+          src="/beri-logo.png"
           alt="Beri"
           className="h-16 object-contain"
           onError={(e) => {
@@ -258,7 +258,7 @@ export function ChatWindow() {
       >
         <div className="flex items-center gap-2">
           <img
-            src="/favicon.svg"
+            src="/favicon.png"
             alt="Beri"
             className="w-7 h-7 rounded-full border border-[#D4A843]/30"
             onError={(e) => {

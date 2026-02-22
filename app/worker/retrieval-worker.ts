@@ -206,7 +206,7 @@ async function _init() {
     // Phase 1: Fetch raw markdown, chunk on device, build text-only Orama
     // BM25 full-text search is available after this point.
     try {
-      const response = await fetch(`${basePath}/data/habs.md`);
+      const response = await fetch(`${basePath}/data/Haberdashers_Boys_School_Dataset_Improved.md`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const markdown = await response.text();
       textChunks = parseMarkdown(markdown);
