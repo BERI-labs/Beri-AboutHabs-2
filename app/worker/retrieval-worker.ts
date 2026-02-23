@@ -104,7 +104,7 @@ interface TextChunk {
 }
 
 function parseMarkdown(markdown: string): TextChunk[] {
-  const sections = markdown.split(/\n---\n/).filter((s) => s.trim());
+  const sections = markdown.replace(/\r\n/g, "\n").split(/\n---\n/).filter((s) => s.trim());
   const chunks: TextChunk[] = [];
   let chunkIndex = 0;
 

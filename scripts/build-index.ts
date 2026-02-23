@@ -73,7 +73,8 @@ async function buildIndex() {
   );
 
   console.log("Parsing dataset…");
-  const raw = readFileSync("Haberdashers_Boys_School_Dataset_Improved.md", "utf-8");
+  const raw = readFileSync("Haberdashers_Boys_School_Dataset_Improved.md", "utf-8")
+    .replace(/\r\n/g, "\n");
   const sections = raw.split(/\n---\n/).filter((s) => s.trim());
 
   const chunks: Chunk[] = [];
