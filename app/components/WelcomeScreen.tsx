@@ -21,7 +21,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
       {/* Logo */}
       <div className="mb-8 flex flex-col items-center gap-4">
         <img
-          src="/beri-logo.svg"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/beri-logo.png`}
           alt="Beri"
           className="h-14 object-contain"
           onError={(e) => {

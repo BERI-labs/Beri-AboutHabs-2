@@ -1,5 +1,3 @@
-import { create, insert, search } from "@orama/orama";
-import { persist, restore } from "@orama/plugin-data-persistence";
 import { pipeline, env } from "@huggingface/transformers";
 
 // Force single-threaded WASM — avoids onnxruntime-web trying to spawn
@@ -8,65 +6,54 @@ import { pipeline, env } from "@huggingface/transformers";
 if (env.backends.onnx.wasm) env.backends.onnx.wasm.numThreads = 1;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let db: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let embedder: any = null;
 let embedderReady = false;
 let basePath = "";
 
-const CURRENT_INDEX_VERSION = "v2";
-
-// ── IndexedDB helpers ────────────────────────────────────────────────────────
-
-function idbOpen(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open("beri-db", 1);
-    req.onupgradeneeded = () => req.result.createObjectStore("data");
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
+interface Chunk {
+  text: string;
+  title: string;
+  embedding: number[];
+  section: string;
+  chunkIndex: number;
 }
 
-async function idbGet(key: string): Promise<string | undefined> {
-  const conn = await idbOpen();
-  return new Promise((resolve, reject) => {
-    const tx = conn.transaction("data", "readonly");
-    const req = tx.objectStore("data").get(key);
-    req.onsuccess = () => resolve(req.result as string | undefined);
-    req.onerror = () => reject(req.error);
-  });
+let chunks: Chunk[] = [];
+
+// ── Cosine similarity ────────────────────────────────────────────────────────
+
+function cosineSim(a: number[], b: number[]): number {
+  let dot = 0;
+  let normA = 0;
+  let normB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+  const denom = Math.sqrt(normA) * Math.sqrt(normB);
+  return denom === 0 ? 0 : dot / denom;
 }
 
-async function idbPut(key: string, value: string): Promise<void> {
-  const conn = await idbOpen();
-  return new Promise((resolve, reject) => {
-    const tx = conn.transaction("data", "readwrite");
-    tx.objectStore("data").put(value, key);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
+// ── Keyword fallback (used before embedder loads) ────────────────────────────
+
+function keywordSearch(query: string, topK: number) {
+  const terms = query.toLowerCase().split(/\s+/).filter((t) => t.length > 2);
+  const scored = chunks.map((chunk) => {
+    const haystack = (chunk.title + " " + chunk.text).toLowerCase();
+    let score = 0;
+    for (const term of terms) {
+      if (haystack.includes(term)) score++;
+    }
+    return { chunk, score };
   });
+  return scored
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topK);
 }
 
-// ── Orama schemas ─────────────────────────────────────────────────────────────
-
-// Text-only schema (fallback when knowledge-index.json has no embeddings)
-const TEXT_SCHEMA = {
-  text: "string",
-  title: "string",
-  section: "string",
-  chunkIndex: "number",
-} as const;
-
-// Full schema with pre-computed embeddings (primary path)
-const VECTOR_SCHEMA = {
-  text: "string",
-  title: "string",
-  embedding: "vector[384]",
-  section: "string",
-  chunkIndex: "number",
-} as const;
-
-// ── Markdown parser / chunker (fallback only) ────────────────────────────────
+// ── Markdown parser / chunker (fallback when knowledge-index.json unavailable)
 
 function classifySection(title: string): string {
   const t = title.toLowerCase();
@@ -96,16 +83,9 @@ function classifySection(title: string): string {
   return "General";
 }
 
-interface TextChunk {
-  text: string;
-  title: string;
-  section: string;
-  chunkIndex: number;
-}
-
-function parseMarkdown(markdown: string): TextChunk[] {
+function parseMarkdown(markdown: string): Chunk[] {
   const sections = markdown.replace(/\r\n/g, "\n").split(/\n---\n/).filter((s) => s.trim());
-  const chunks: TextChunk[] = [];
+  const result: Chunk[] = [];
   let chunkIndex = 0;
 
   for (const section of sections) {
@@ -123,7 +103,6 @@ function parseMarkdown(markdown: string): TextChunk[] {
     const estimatedTokens = Math.round(wordCount * 1.3);
 
     if (estimatedTokens > 350) {
-      // Sub-split on paragraph boundaries
       const paragraphs = text.split(/\n\n+/);
       let buffer = "";
       let subIndex = 0;
@@ -131,9 +110,10 @@ function parseMarkdown(markdown: string): TextChunk[] {
       for (const para of paragraphs) {
         const combined = buffer ? buffer + "\n\n" + para : para;
         if (buffer && combined.split(/\s+/).length * 1.3 > 300) {
-          chunks.push({
+          result.push({
             text: buffer,
             title: subIndex === 0 ? title : `${title} (cont.)`,
+            embedding: [],
             section: classifySection(title),
             chunkIndex: chunkIndex++,
           });
@@ -144,27 +124,28 @@ function parseMarkdown(markdown: string): TextChunk[] {
         }
       }
       if (buffer) {
-        chunks.push({
+        result.push({
           text: buffer,
           title: subIndex === 0 ? title : `${title} (cont.)`,
+          embedding: [],
           section: classifySection(title),
           chunkIndex: chunkIndex++,
         });
       }
-    } else if (estimatedTokens < 30 && chunks.length > 0) {
-      // Merge tiny section into previous chunk
-      chunks[chunks.length - 1].text += "\n\n" + text;
+    } else if (estimatedTokens < 30 && result.length > 0) {
+      result[result.length - 1].text += "\n\n" + text;
     } else {
-      chunks.push({
+      result.push({
         text,
         title,
+        embedding: [],
         section: classifySection(title),
         chunkIndex: chunkIndex++,
       });
     }
   }
 
-  return chunks;
+  return result;
 }
 
 // ── Initialisation ────────────────────────────────────────────────────────────
@@ -173,105 +154,46 @@ async function init() {
   try {
     await _init();
   } catch (e) {
-    // Last-resort safety net — orama-ready must always fire so the UI doesn't
-    // hang on the loading screen regardless of what went wrong.
     console.error("Worker init failed unexpectedly:", e);
-    if (!db) {
-      try { db = await create({ schema: TEXT_SCHEMA }); } catch { /* ignore */ }
-    }
     self.postMessage({ type: "orama-ready" });
     self.postMessage({ type: "embedder-fallback" });
   }
 }
 
 async function _init() {
-  // Tracks whether we need to compute embeddings on-device (fallback path)
-  let textOnlyChunks: TextChunk[] = [];
-  let hasPrecomputedEmbeddings = false;
-
-  // 1. Try warm boot from IndexedDB (contains vector-enhanced DB from a prior run)
-  let warmBooted = false;
+  // 1. Load pre-built knowledge-index.json (primary path)
   try {
-    const version = await idbGet("beri-orama-version");
-    if (version === CURRENT_INDEX_VERSION) {
-      const serialised = await idbGet("beri-orama");
-      if (serialised) {
-        db = await restore("json", serialised);
-        warmBooted = true;
-        hasPrecomputedEmbeddings = true;
+    const response = await fetch(`${basePath}/data/knowledge-index.json`);
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0) {
+        chunks = data;
       }
     }
   } catch {
-    // Fall through to cold init
+    // Fall through to .md fallback
   }
 
-  if (!warmBooted) {
-    // 2. Cold init — try loading pre-built knowledge-index.json first (per spec §10).
-    //    This file contains chunks with pre-computed 384-dim embeddings from the
-    //    build script, so hybrid search is available as soon as the embedder loads
-    //    (embedder is only needed for query-time embedding, not chunk embedding).
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let indexChunks: any[] = [];
-
+  // 2. Fallback: fetch raw markdown and chunk on device (no embeddings)
+  if (chunks.length === 0) {
     try {
-      const response = await fetch(`${basePath}/data/knowledge-index.json`);
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          indexChunks = data;
-          // Check if the first chunk has a non-empty embedding array
-          hasPrecomputedEmbeddings =
-            Array.isArray(indexChunks[0]?.embedding) &&
-            indexChunks[0].embedding.length === 384;
-        }
-      }
-    } catch {
-      // Fall through to .md fallback
-    }
-
-    if (indexChunks.length > 0) {
-      // Primary path: use pre-built index
-      const schema = hasPrecomputedEmbeddings ? VECTOR_SCHEMA : TEXT_SCHEMA;
-      db = await create({ schema });
-      for (const chunk of indexChunks) {
-        if (hasPrecomputedEmbeddings) {
-          await insert(db, chunk);
-        } else {
-          // Strip embedding field if schema is text-only
-          const { embedding: _, ...rest } = chunk;
-          await insert(db, rest);
-          // Track for later on-device embedding
-          textOnlyChunks.push(rest as TextChunk);
-        }
-      }
-    } else {
-      // Fallback: fetch raw markdown, chunk on device, build text-only Orama.
-      // BM25 full-text search is available after this point.
-      try {
-        const response = await fetch(
-          `${basePath}/data/Haberdashers_Boys_School_Dataset_Improved.md`,
-        );
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const markdown = await response.text();
-        textOnlyChunks = parseMarkdown(markdown);
-      } catch (e) {
-        console.warn("Failed to load knowledge base:", e);
-      }
-
-      db = await create({ schema: TEXT_SCHEMA });
-      for (const chunk of textOnlyChunks) {
-        await insert(db, chunk);
-      }
+      const response = await fetch(
+        `${basePath}/data/Haberdashers_Boys_School_Dataset_Improved.md`,
+      );
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const markdown = await response.text();
+      chunks = parseMarkdown(markdown);
+    } catch (e) {
+      console.warn("Failed to load knowledge base:", e);
     }
   }
 
-  // Signal ready — BM25 text search works from here (hybrid if pre-computed embeddings loaded)
+  // Signal ready — keyword search works from here, vector search once embedder loads
   self.postMessage({ type: "orama-ready" });
 
   // 3. Load embedder in the background (~23 MB ONNX download).
-  //    With pre-computed embeddings, the embedder is only needed for query-time
-  //    embedding (~20–30ms per query). Without pre-computed embeddings (fallback),
-  //    it also re-embeds all chunks on-device before hybrid search is available.
+  //    With pre-computed chunk embeddings, the embedder is only needed for
+  //    query-time embedding (~20–30ms per query).
   try {
     embedder = await pipeline(
       "feature-extraction",
@@ -287,32 +209,19 @@ async function _init() {
       },
     );
 
-    if (!warmBooted && !hasPrecomputedEmbeddings && textOnlyChunks.length > 0) {
-      // Fallback Phase 2: generate on-device embeddings, rebuild Orama with vector schema
-      const vectorDb = await create({ schema: VECTOR_SCHEMA });
-      for (const chunk of textOnlyChunks) {
+    // If chunks came from .md fallback (no embeddings), compute them now
+    const needsEmbedding = chunks.length > 0 && chunks[0].embedding.length === 0;
+    if (needsEmbedding) {
+      for (const chunk of chunks) {
         const output = await embedder(chunk.text, { pooling: "mean", normalize: true });
-        const embedding = Array.from(output.data as Float32Array);
-        await insert(vectorDb, { ...chunk, embedding });
-      }
-      db = vectorDb;
-    }
-
-    // Cache the DB so future visits skip cold init
-    if (!warmBooted) {
-      try {
-        const serialised = await persist(db, "json") as string;
-        await idbPut("beri-orama", serialised);
-        await idbPut("beri-orama-version", CURRENT_INDEX_VERSION);
-      } catch {
-        // Non-fatal — next visit will rebuild again
+        chunk.embedding = Array.from(output.data as Float32Array);
       }
     }
 
     embedderReady = true;
     self.postMessage({ type: "embedder-ready" });
   } catch (e) {
-    console.warn("Embedder unavailable, using fulltext-only:", e);
+    console.warn("Embedder unavailable, using keyword-only search:", e);
     self.postMessage({ type: "embedder-fallback" });
   }
 }
@@ -320,48 +229,37 @@ async function _init() {
 // ── Search handler ────────────────────────────────────────────────────────────
 
 async function handleSearch(query: string, id: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let results: any;
+  const topK = 2;
 
-  if (embedderReady && embedder) {
-    // Hybrid search: 60% BM25 + 40% vector
+  if (embedderReady && embedder && chunks.length > 0 && chunks[0].embedding.length > 0) {
+    // Vector search: embed query, cosine similarity against all chunks
     const output = await embedder(query, { pooling: "mean", normalize: true });
-    const queryVector = Array.from(output.data as Float32Array);
+    const queryVec = Array.from(output.data as Float32Array) as number[];
 
-    results = await search(db, {
-      term: query,
-      mode: "hybrid",
-      vector: {
-        value: queryVector,
-        property: "embedding",
-      },
-      hybridWeights: { text: 0.6, vector: 0.4 },
-      limit: 2,
-      similarity: 0.5,
-    });
+    const scored = chunks
+      .map((chunk) => ({ chunk, score: cosineSim(queryVec, chunk.embedding) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, topK);
+
+    const mapped = scored
+      .map((r) => ({
+        chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex },
+        score: r.score,
+      }))
+      .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
+
+    self.postMessage({ type: "search-results", id, results: mapped });
   } else {
-    // Fulltext-only while embedder is still loading
-    results = await search(db, {
-      term: query,
-      mode: "fulltext",
-      limit: 2,
-    });
+    // Keyword fallback while embedder is loading
+    const results = keywordSearch(query, topK)
+      .map((r) => ({
+        chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex },
+        score: r.score,
+      }))
+      .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
+
+    self.postMessage({ type: "search-results", id, results });
   }
-
-  const mapped = results.hits
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((hit: any) => ({
-      chunk: {
-        title: hit.document.title,
-        text: hit.document.text,
-        chunkIndex: hit.document.chunkIndex,
-      },
-      score: hit.score,
-    }))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .sort((a: any, b: any) => a.chunk.chunkIndex - b.chunk.chunkIndex);
-
-  self.postMessage({ type: "search-results", id, results: mapped });
 }
 
 // ── Message router ────────────────────────────────────────────────────────────
