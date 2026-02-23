@@ -1,10 +1,3 @@
-import { pipeline, env } from "@huggingface/transformers";
-
-// Force single-threaded WASM — avoids onnxruntime-web trying to spawn
-// em-pthread workers via new Worker(import.meta.url, ...) which breaks
-// under webpack's CommonJS bundling of onnxruntime-web.
-if (env.backends.onnx.wasm) env.backends.onnx.wasm.numThreads = 1;
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let embedder: any = null;
 let embedderReady = false;
@@ -191,10 +184,19 @@ async function _init() {
   // Signal ready — keyword search works from here, vector search once embedder loads
   self.postMessage({ type: "orama-ready" });
 
-  // 3. Load embedder in the background (~23 MB ONNX download).
-  //    With pre-computed chunk embeddings, the embedder is only needed for
-  //    query-time embedding (~20–30ms per query).
+  // 3. Lazy-load the embedder (~23 MB ONNX download).
+  //    Dynamic import() avoids crashing the worker at module load time if
+  //    @huggingface/transformers has internal init errors (e.g. tokenizer
+  //    constructors calling .replace() on non-string config values).
   try {
+    const { pipeline, env } = await import("@huggingface/transformers");
+
+    // Force single-threaded WASM — avoids onnxruntime-web trying to spawn
+    // em-pthread workers which breaks under webpack's bundling.
+    if (env.backends?.onnx?.wasm) {
+      env.backends.onnx.wasm.numThreads = 1;
+    }
+
     embedder = await pipeline(
       "feature-extraction",
       "Xenova/all-MiniLM-L6-v2",
