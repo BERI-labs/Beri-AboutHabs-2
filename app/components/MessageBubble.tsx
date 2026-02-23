@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { Message } from "../lib/types";
 import { SourcePanel } from "./SourcePanel";
 
@@ -28,7 +27,6 @@ function formatText(text: string): React.ReactNode {
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
-  const [reasoningOpen, setReasoningOpen] = useState(false);
   const isUser = message.role === "user";
 
   if (isUser) {
@@ -56,7 +54,6 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           alt="Beri"
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Fallback to a blueberry emoji if no image
             const target = e.currentTarget;
             target.style.display = "none";
             const parent = target.parentElement!;
@@ -66,38 +63,6 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Reasoning accordion */}
-        {message.reasoning && (
-          <div className="mb-2">
-            <button
-              onClick={() => setReasoningOpen(!reasoningOpen)}
-              className="flex items-center gap-1.5 text-xs text-[#B8BDD0] hover:text-[#D4A843] transition-colors mb-1"
-            >
-              <svg
-                className={`w-3 h-3 transition-transform duration-200 ${reasoningOpen ? "rotate-90" : ""}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-              <span>Reasoning</span>
-            </button>
-            {reasoningOpen && (
-              <div
-                className="reasoning-content px-3 py-2 rounded-lg border-l-2 mb-2"
-                style={{
-                  borderColor: "var(--beri-gold)",
-                  background: "rgba(212, 168, 67, 0.04)",
-                }}
-              >
-                {message.reasoning}
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Message bubble */}
         <div
           className="px-4 py-3 rounded-2xl rounded-tl-sm text-sm leading-relaxed border-l-2"

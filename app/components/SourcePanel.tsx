@@ -29,24 +29,36 @@ export function SourcePanel({ sources }: SourcePanelProps) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
         <span>
-          {sources.length} source{sources.length !== 1 ? "s" : ""}
+          {sources.length} source{sources.length !== 1 ? "s" : ""} cited
         </span>
       </button>
 
       {open && (
-        <div className="mt-2 flex flex-wrap gap-1.5 animate-fade-in">
+        <div className="mt-2 space-y-2 animate-fade-in">
           {sources.map((s, i) => (
-            <span
+            <details
               key={i}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border border-[#D4A843]/30 text-[#D4A843] bg-[#D4A843]/5"
-              title={s.chunk.text.slice(0, 120) + "…"}
+              className="group rounded-lg border border-[#D4A843]/20 bg-[#D4A843]/5 overflow-hidden"
             >
-              <span className="opacity-60">#{s.chunk.chunkIndex + 1}</span>
-              <span className="max-w-[180px] truncate">{s.chunk.title}</span>
-              <span className="opacity-50 text-[10px]">
-                {(s.score * 100).toFixed(0)}%
-              </span>
-            </span>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-xs text-[#D4A843] hover:bg-[#D4A843]/10 transition-colors select-none list-none">
+                <svg
+                  className="w-3 h-3 transition-transform duration-200 group-open:rotate-90 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="font-medium truncate">{s.chunk.title}</span>
+                <span className="ml-auto opacity-50 text-[10px] flex-shrink-0">
+                  {(s.score * 100).toFixed(0)}% match
+                </span>
+              </summary>
+              <div className="px-3 pb-3 pt-1 text-xs leading-relaxed text-[#B8BDD0] border-t border-[#D4A843]/10">
+                {s.chunk.text}
+              </div>
+            </details>
           ))}
         </div>
       )}
