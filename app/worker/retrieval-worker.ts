@@ -13,6 +13,73 @@ interface Chunk {
 
 let chunks: Chunk[] = [];
 
+// ── BM25 index (built once after chunks load) ───────────────────────────────
+
+const BM25_K1 = 1.2;
+const BM25_B = 0.75;
+
+let docFreqs: Map<string, number> = new Map(); // term → number of docs containing it
+let docTermFreqs: { terms: Map<string, number>; length: number }[] = []; // per-chunk
+let avgDocLength = 0;
+
+function tokenize(text: string): string[] {
+  return text.toLowerCase().replace(/[^a-z0-9'\-]+/g, " ").split(/\s+/).filter((t) => t.length > 1);
+}
+
+function buildBM25Index() {
+  docFreqs = new Map();
+  docTermFreqs = [];
+  let totalLength = 0;
+
+  for (const chunk of chunks) {
+    const text = chunk.title + " " + chunk.text;
+    const terms = tokenize(text);
+    totalLength += terms.length;
+
+    const tf = new Map<string, number>();
+    const seen = new Set<string>();
+    for (const t of terms) {
+      tf.set(t, (tf.get(t) ?? 0) + 1);
+      if (!seen.has(t)) {
+        seen.add(t);
+        docFreqs.set(t, (docFreqs.get(t) ?? 0) + 1);
+      }
+    }
+    docTermFreqs.push({ terms: tf, length: terms.length });
+  }
+
+  avgDocLength = chunks.length > 0 ? totalLength / chunks.length : 1;
+}
+
+function bm25Score(queryTerms: string[], docIdx: number): number {
+  const N = chunks.length;
+  const doc = docTermFreqs[docIdx];
+  let score = 0;
+
+  for (const term of queryTerms) {
+    const df = docFreqs.get(term) ?? 0;
+    if (df === 0) continue;
+
+    const idf = Math.log((N - df + 0.5) / (df + 0.5) + 1);
+    const tf = doc.terms.get(term) ?? 0;
+    const tfNorm = (tf * (BM25_K1 + 1)) / (tf + BM25_K1 * (1 - BM25_B + BM25_B * (doc.length / avgDocLength)));
+    score += idf * tfNorm;
+  }
+
+  return score;
+}
+
+function bm25Search(query: string, topK: number): { chunk: Chunk; score: number }[] {
+  const queryTerms = tokenize(query);
+  if (queryTerms.length === 0) return [];
+
+  const scored = chunks.map((chunk, i) => ({ chunk, score: bm25Score(queryTerms, i) }));
+  return scored
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topK);
+}
+
 // ── Cosine similarity ────────────────────────────────────────────────────────
 
 function cosineSim(a: number[], b: number[]): number {
@@ -28,22 +95,66 @@ function cosineSim(a: number[], b: number[]): number {
   return denom === 0 ? 0 : dot / denom;
 }
 
-// ── Keyword fallback (used before embedder loads) ────────────────────────────
+// ── Hybrid search: BM25 + cosine similarity ─────────────────────────────────
 
-function keywordSearch(query: string, topK: number) {
-  const terms = query.toLowerCase().split(/\s+/).filter((t) => t.length > 2);
-  const scored = chunks.map((chunk) => {
-    const haystack = (chunk.title + " " + chunk.text).toLowerCase();
-    let score = 0;
-    for (const term of terms) {
-      if (haystack.includes(term)) score++;
-    }
-    return { chunk, score };
-  });
-  return scored
+const BM25_WEIGHT = 0.35;
+const VECTOR_WEIGHT = 0.65;
+
+function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
+  if (scored.length === 0) return new Map();
+  const max = scored[0].score; // already sorted descending
+  const min = scored[scored.length - 1].score;
+  const range = max - min || 1;
+  const map = new Map<number, number>();
+  for (const s of scored) {
+    map.set(s.idx, (s.score - min) / range);
+  }
+  return map;
+}
+
+async function hybridSearch(query: string, topK: number) {
+  // BM25 leg — always available
+  const queryTerms = tokenize(query);
+  const bm25Candidates = chunks
+    .map((chunk, i) => ({ idx: i, chunk, score: bm25Score(queryTerms, i) }))
     .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
+    .slice(0, topK * 3); // over-fetch for fusion
+
+  const hasEmbeddings = embedderReady && embedder && chunks.length > 0 && chunks[0].embedding.length > 0;
+
+  if (!hasEmbeddings) {
+    // Embedder not ready — BM25 only
+    return bm25Candidates.slice(0, topK).map((r) => ({ chunk: r.chunk, score: r.score }));
+  }
+
+  // Vector leg
+  const output = await embedder(query, { pooling: "mean", normalize: true });
+  const queryVec = Array.from(output.data as Float32Array) as number[];
+
+  const vectorCandidates = chunks
+    .map((chunk, i) => ({ idx: i, chunk, score: cosineSim(queryVec, chunk.embedding) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topK * 3);
+
+  // Min-max normalize both score sets
+  const bm25Norm = normalizeScores(bm25Candidates);
+  const vecNorm = normalizeScores(vectorCandidates);
+
+  // Merge all candidate indices
+  const allIdxs = new Set<number>();
+  for (const c of bm25Candidates) allIdxs.add(c.idx);
+  for (const c of vectorCandidates) allIdxs.add(c.idx);
+
+  // Weighted fusion
+  const fused: { chunk: Chunk; score: number }[] = [];
+  for (const idx of allIdxs) {
+    const bScore = bm25Norm.get(idx) ?? 0;
+    const vScore = vecNorm.get(idx) ?? 0;
+    fused.push({ chunk: chunks[idx], score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore });
+  }
+
+  return fused.sort((a, b) => b.score - a.score).slice(0, topK);
 }
 
 // ── Markdown parser / chunker (fallback when knowledge-index.json unavailable)
@@ -181,13 +292,17 @@ async function _init() {
     }
   }
 
-  // Signal ready — keyword search works from here, vector search once embedder loads
+  // Build BM25 index over loaded chunks
+  if (chunks.length > 0) {
+    buildBM25Index();
+  }
+
+  // Signal ready — BM25 search works from here, hybrid once embedder loads
   self.postMessage({ type: "orama-ready" });
 
   // 3. Lazy-load the embedder (~23 MB ONNX download).
   //    Dynamic import() avoids crashing the worker at module load time if
-  //    @huggingface/transformers has internal init errors (e.g. tokenizer
-  //    constructors calling .replace() on non-string config values).
+  //    @huggingface/transformers has internal init errors.
   try {
     const { pipeline, env } = await import("@huggingface/transformers");
 
@@ -223,7 +338,7 @@ async function _init() {
     embedderReady = true;
     self.postMessage({ type: "embedder-ready" });
   } catch (e) {
-    console.warn("Embedder unavailable, using keyword-only search:", e);
+    console.warn("Embedder unavailable, using BM25-only search:", e);
     self.postMessage({ type: "embedder-fallback" });
   }
 }
@@ -231,37 +346,18 @@ async function _init() {
 // ── Search handler ────────────────────────────────────────────────────────────
 
 async function handleSearch(query: string, id: string) {
-  const topK = 2;
+  const topK = 3;
 
-  if (embedderReady && embedder && chunks.length > 0 && chunks[0].embedding.length > 0) {
-    // Vector search: embed query, cosine similarity against all chunks
-    const output = await embedder(query, { pooling: "mean", normalize: true });
-    const queryVec = Array.from(output.data as Float32Array) as number[];
+  const results = await hybridSearch(query, topK);
 
-    const scored = chunks
-      .map((chunk) => ({ chunk, score: cosineSim(queryVec, chunk.embedding) }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, topK);
+  const mapped = results
+    .map((r) => ({
+      chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex },
+      score: r.score,
+    }))
+    .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
 
-    const mapped = scored
-      .map((r) => ({
-        chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex },
-        score: r.score,
-      }))
-      .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
-
-    self.postMessage({ type: "search-results", id, results: mapped });
-  } else {
-    // Keyword fallback while embedder is loading
-    const results = keywordSearch(query, topK)
-      .map((r) => ({
-        chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex },
-        score: r.score,
-      }))
-      .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
-
-    self.postMessage({ type: "search-results", id, results });
-  }
+  self.postMessage({ type: "search-results", id, results: mapped });
 }
 
 // ── Message router ────────────────────────────────────────────────────────────

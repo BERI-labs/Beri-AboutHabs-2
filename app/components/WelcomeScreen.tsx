@@ -6,8 +6,6 @@ const STARTER_QUESTIONS = [
   "What GCSE grades do I need for A-Level Physics?",
   "Who is the Headmaster?",
   "What were the 2025 A-Level results?",
-  "What sports are played in autumn term?",
-  "What are the six Houses?",
   "How do I get financial help?",
 ];
 
@@ -69,7 +67,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <button
             key={q}
             onClick={() => onQuestion(q)}
-            className="starter-chip px-3 py-1.5 rounded-full text-xs border text-[#D4A843] border-[#D4A843]/40 bg-transparent"
+            className="starter-chip px-4 py-2.5 rounded-full text-sm border text-[#D4A843] border-[#D4A843]/40 bg-transparent"
           >
             {q}
           </button>

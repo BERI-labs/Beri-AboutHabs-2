@@ -6,18 +6,25 @@ import { RAGOrchestrator } from "../lib/rag";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { MessageList } from "./MessageList";
 import { InputBar } from "./InputBar";
-import { ReasoningToggle } from "./ReasoningToggle";
+import { WelcomeModal } from "./WelcomeModal";
 
 type WorkerStatus = "loading" | "orama-ready" | "embedder-ready" | "embedder-fallback";
+
+const MAX_MESSAGES_PER_CONVERSATION = 42;
+const MAX_MESSAGES_PER_WINDOW = 3;
+const RATE_WINDOW_MS = 8000;
 
 export function ChatWindow() {
   const [appState, setAppState] = useState<AppState>("loading");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [reasoningMode, setReasoningMode] = useState(false);
   const [workerStatus, setWorkerStatus] = useState<WorkerStatus>("loading");
   const [embedderProgress, setEmbedderProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Rate limiting
+  const [messageCount, setMessageCount] = useState(0);
+  const messageTimestamps = useRef<number[]>([]);
 
   const orchestratorRef = useRef<RAGOrchestrator | null>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -48,7 +55,6 @@ export function ChatWindow() {
 
       if (type === "orama-ready") {
         setWorkerStatus("orama-ready");
-        // Orama ready → show welcome (embedder loads in background)
         setAppState("welcome");
       }
       if (type === "embedder-progress") {
@@ -66,8 +72,6 @@ export function ChatWindow() {
       console.error("Retrieval worker error:", err);
     };
 
-    // Pass basePath so the worker can fetch /data/knowledge-index.json correctly
-    // process.env.NEXT_PUBLIC_BASE_PATH is set by next.config.mjs via env injection
     const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
     worker.postMessage({ type: "init", basePath: base });
 
@@ -79,31 +83,61 @@ export function ChatWindow() {
     };
   }, [apiKeyMissing]);
 
-  useEffect(() => {
-    if (orchestratorRef.current) {
-      orchestratorRef.current.setReasoningMode(reasoningMode);
-    }
-  }, [reasoningMode]);
-
   const sendMessage = useCallback(
     async (userText: string) => {
       if (!orchestratorRef.current || isStreaming) return;
 
+      // Rate limit: max messages per conversation
+      if (messageCount >= MAX_MESSAGES_PER_CONVERSATION) {
+        const rateLimitMsg: Message = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content:
+            "You have reached the maximum number of messages for this conversation. Please take time to read through the responses provided. If you need further help, refresh the page to start a new conversation.",
+        };
+        setMessages((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), role: "user", content: userText },
+          rateLimitMsg,
+        ]);
+        return;
+      }
+
+      // Rate limit: max messages per time window
+      const now = Date.now();
+      const recentTimestamps = messageTimestamps.current.filter(
+        (t) => now - t < RATE_WINDOW_MS,
+      );
+      if (recentTimestamps.length >= MAX_MESSAGES_PER_WINDOW) {
+        const rateLimitMsg: Message = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content:
+            "You are sending messages too quickly. Please slow down and read through the responses before asking another question. Beri is here to help, not to be stress-tested.",
+        };
+        setMessages((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), role: "user", content: userText },
+          rateLimitMsg,
+        ]);
+        return;
+      }
+
+      messageTimestamps.current = [...recentTimestamps, now];
+      setMessageCount((c) => c + 1);
+
       const rag = orchestratorRef.current;
 
-      // Transition to chat
       if (appState === "welcome") {
         setAppState("chatting");
       }
 
-      // Add user message
       const userMsg: Message = {
         id: crypto.randomUUID(),
         role: "user",
         content: userText,
       };
 
-      // Add placeholder assistant message
       const assistantId = crypto.randomUUID();
       const assistantMsg: Message = {
         id: assistantId,
@@ -115,8 +149,6 @@ export function ChatWindow() {
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
       setIsStreaming(true);
 
-      let reasoningAccum = "";
-
       try {
         const { fullText, sources } = await rag.ask(
           userText,
@@ -125,16 +157,6 @@ export function ChatWindow() {
               prev.map((m) =>
                 m.id === assistantId
                   ? { ...m, content: text, isStreaming: true }
-                  : m,
-              ),
-            );
-          },
-          (reasoning) => {
-            reasoningAccum = reasoning;
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantId
-                  ? { ...m, reasoning: reasoningAccum, isStreaming: true }
                   : m,
               ),
             );
@@ -149,7 +171,6 @@ export function ChatWindow() {
                   content: fullText,
                   sources,
                   isStreaming: false,
-                  reasoning: reasoningAccum || undefined,
                 }
               : m,
           ),
@@ -172,7 +193,7 @@ export function ChatWindow() {
         setIsStreaming(false);
       }
     },
-    [appState, isStreaming],
+    [appState, isStreaming, messageCount],
   );
 
   // ── LOADING SCREEN ──────────────────────────────────────────────
@@ -195,7 +216,7 @@ export function ChatWindow() {
           className="hidden text-3xl font-bold"
           style={{ color: "var(--beri-white)" }}
         >
-          🫐 Beri
+          Beri
         </div>
 
         <div className="w-64 flex flex-col gap-2">
@@ -248,15 +269,23 @@ export function ChatWindow() {
   // ── MAIN CHAT UI ──────────────────────────────────────────────
   return (
     <div
-      className="flex flex-col h-screen max-w-2xl mx-auto"
+      className="flex flex-col h-screen max-w-4xl mx-auto"
       style={{ background: "var(--beri-navy)" }}
     >
+      {/* First-visit welcome modal */}
+      <WelcomeModal />
+
       {/* Header */}
       <header
         className="flex items-center justify-between px-4 py-3 border-b"
         style={{ borderColor: "rgba(184, 189, 208, 0.1)" }}
       >
-        <div className="flex items-center gap-2">
+        <a
+          href="https://beri-labs.github.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
           <img
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.png`}
             alt="Beri"
@@ -279,59 +308,7 @@ export function ChatWindow() {
               Habs Boys AI Assistant
             </span>
           </div>
-
-          {/* Status indicators */}
-          {workerStatus === "embedder-fallback" && (
-            <span
-              className="ml-2 text-xs px-2 py-0.5 rounded-full border"
-              style={{
-                color: "var(--beri-white-soft)",
-                borderColor: "rgba(184,189,208,0.2)",
-              }}
-            >
-              Text search
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          {reasoningMode && (
-            <span className="text-xs px-2 py-0.5 rounded-full border border-[#D4A843]/40 text-[#D4A843]">
-              🧠 Reasoning
-            </span>
-          )}
-          <ReasoningToggle
-            enabled={reasoningMode}
-            onChange={setReasoningMode}
-            disabled={isStreaming}
-          />
-          {messages.length > 0 && (
-            <button
-              onClick={() => {
-                setMessages([]);
-                setAppState("welcome");
-                orchestratorRef.current?.resetHistory();
-              }}
-              disabled={isStreaming}
-              title="New conversation"
-              className="p-1.5 rounded-lg transition-colors hover:bg-[#1A3068] text-[#B8BDD0] hover:text-[#F0F2F7]"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
-          )}
-        </div>
+        </a>
       </header>
 
       {/* Content */}

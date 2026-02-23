@@ -6,14 +6,9 @@ const SYSTEM_PROMPT = `You are Beri, the AI assistant for Haberdashers' Boys' Sc
 export class RAGOrchestrator {
   private retrievalWorker: Worker;
   private history: GroqMessage[] = [];
-  private reasoningMode = false;
 
   constructor(retrievalWorker: Worker) {
     this.retrievalWorker = retrievalWorker;
-  }
-
-  setReasoningMode(enabled: boolean) {
-    this.reasoningMode = enabled;
   }
 
   async search(query: string): Promise<SearchResult[]> {
@@ -56,7 +51,6 @@ export class RAGOrchestrator {
   async ask(
     userQuery: string,
     onChunk: (text: string) => void,
-    onReasoning?: (text: string) => void,
   ): Promise<{ fullText: string; sources: SearchResult[] }> {
     // 1. Retrieve (local, ~30ms)
     const sources = await this.search(userQuery);
@@ -68,9 +62,8 @@ export class RAGOrchestrator {
     const fullText = await new Promise<string>((resolve, reject) => {
       streamGroqCompletion({
         messages,
-        includeReasoning: this.reasoningMode,
+        includeReasoning: false,
         onChunk,
-        onReasoning,
         onDone: (text) => {
           this.history.push(
             { role: "user", content: userQuery },
