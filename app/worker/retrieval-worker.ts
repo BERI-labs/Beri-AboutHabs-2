@@ -124,8 +124,9 @@ async function hybridSearch(query: string, topK: number) {
   const hasEmbeddings = embedderReady && embedder && chunks.length > 0 && chunks[0].embedding.length > 0;
 
   if (!hasEmbeddings) {
-    // Embedder not ready — BM25 only
-    return bm25Candidates.slice(0, topK).map((r) => ({ chunk: r.chunk, score: r.score }));
+    // Embedder not ready — BM25 only; normalize scores to [0, 1] before returning
+    const bm25Norm = normalizeScores(bm25Candidates);
+    return bm25Candidates.slice(0, topK).map((r) => ({ chunk: r.chunk, score: bm25Norm.get(r.idx) ?? 0 }));
   }
 
   // Vector leg
