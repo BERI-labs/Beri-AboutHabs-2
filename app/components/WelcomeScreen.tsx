@@ -104,11 +104,11 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
       {/* GEO: FAQ section — structured for AI answer engines and featured snippets */}
       <section
         aria-label="Frequently asked questions about Beri"
-        className="max-w-lg w-full"
+        className="max-w-2xl w-full"
       >
         {/* SEO: H2 for FAQ section — correct heading hierarchy (H1 → H2) */}
         <h2
-          className="text-xs font-semibold uppercase tracking-widest text-center mb-4"
+          className="text-sm font-semibold uppercase tracking-widest text-center mb-4"
           style={{ color: "var(--beri-white-soft)", opacity: 0.5 }}
         >
           About Beri
@@ -118,13 +118,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           {/* GEO: each dt/dd pair is a concise Q&A that AI engines can quote directly */}
           <div>
             <dt
-              className="text-xs font-semibold mb-1"
+              className="text-sm font-semibold mb-1"
               style={{ color: "var(--beri-gold)" }}
             >
               What is Beri?
             </dt>
             <dd
-              className="text-xs leading-relaxed"
+              className="text-sm leading-relaxed"
               style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
             >
               Beri is a school AI chatbot built by BERI Labs — a student-led AI
@@ -137,13 +137,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
 
           <div>
             <dt
-              className="text-xs font-semibold mb-1"
+              className="text-sm font-semibold mb-1"
               style={{ color: "var(--beri-gold)" }}
             >
               What can Beri help me with?
             </dt>
             <dd
-              className="text-xs leading-relaxed"
+              className="text-sm leading-relaxed"
               style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
             >
               Beri covers 11+ and 13+ admissions, school fees and bursaries,
@@ -155,13 +155,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
 
           <div>
             <dt
-              className="text-xs font-semibold mb-1"
+              className="text-sm font-semibold mb-1"
               style={{ color: "var(--beri-gold)" }}
             >
               Who built Beri?
             </dt>
             <dd
-              className="text-xs leading-relaxed"
+              className="text-sm leading-relaxed"
               style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
             >
               Beri is one of several student-built AI tools developed by BERI
@@ -174,13 +174,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
 
           <div>
             <dt
-              className="text-xs font-semibold mb-1"
+              className="text-sm font-semibold mb-1"
               style={{ color: "var(--beri-gold)" }}
             >
               How does Beri work?
             </dt>
             <dd
-              className="text-xs leading-relaxed"
+              className="text-sm leading-relaxed"
               style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
             >
               Beri uses retrieval-augmented generation (RAG): it searches a
