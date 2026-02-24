@@ -202,10 +202,13 @@ export function ChatWindow() {
       <div
         className="flex flex-col items-center justify-center min-h-screen gap-8"
         style={{ background: "var(--beri-navy)" }}
+        role="status"
+        aria-label="Loading Beri — Haberdashers' Boys' School AI assistant"
       >
+        {/* SEO: descriptive alt text for the loading screen logo */}
         <img
           src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/beri-logo.png`}
-          alt="Beri"
+          alt="Beri — AI assistant for Haberdashers' Boys' School"
           className="h-16 object-contain"
           onError={(e) => {
             const target = e.currentTarget;
@@ -248,11 +251,13 @@ export function ChatWindow() {
   // ── ERROR SCREEN ──────────────────────────────────────────────
   if (appState === "error") {
     return (
-      <div
+      <main
         className="flex flex-col items-center justify-center min-h-screen gap-4 px-6 text-center"
         style={{ background: "var(--beri-navy)" }}
+        aria-label="Error"
       >
-        <div className="text-4xl mb-2">🫐</div>
+        <div className="text-4xl mb-2" aria-hidden="true">🫐</div>
+        {/* SEO: H1 on error screen — only shown when no other content is displayed */}
         <h1
           className="text-xl font-semibold"
           style={{ color: "var(--beri-error)" }}
@@ -262,20 +267,21 @@ export function ChatWindow() {
         <p className="text-sm" style={{ color: "var(--beri-white-soft)" }}>
           Please contact the site administrator.
         </p>
-      </div>
+      </main>
     );
   }
 
   // ── MAIN CHAT UI ──────────────────────────────────────────────
   return (
-    <div
+    // SEO: use <main> landmark for accessibility and crawler content discovery
+    <main
       className="flex flex-col h-screen max-w-4xl mx-auto"
       style={{ background: "var(--beri-navy)" }}
     >
       {/* First-visit welcome modal */}
       <WelcomeModal />
 
-      {/* Header */}
+      {/* SEO: <header> landmark with descriptive logo alt text */}
       <header
         className="flex items-center justify-between px-4 py-3 border-b"
         style={{ borderColor: "rgba(184, 189, 208, 0.1)" }}
@@ -284,11 +290,13 @@ export function ChatWindow() {
           href="https://beri-labs.github.io/"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="BERI Labs — student-built AI tools for education"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
+          {/* SEO: descriptive alt text for header logo */}
           <img
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.png`}
-            alt="Beri"
+            alt="BERI Labs logo"
             className="w-7 h-7 rounded-full border border-[#D4A843]/30"
             onError={(e) => {
               e.currentTarget.style.display = "none";
@@ -328,6 +336,6 @@ export function ChatWindow() {
             : "Ask about admissions, fees, curriculum…"
         }
       />
-    </div>
+    </main>
   );
 }
