@@ -15,7 +15,11 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 overflow-y-auto">
+    {/* Fix: overflow-y-auto removed — the parent <main> now uses min-h-screen
+        in welcome state, so the page/body scrolls rather than this inner
+        container.  Eliminating the nested scroller prevents the touch/trackpad
+        "stuck at bottom" bug on Windows Surface, Edge, and Chrome. */}
+    <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
       {/* Logo */}
       <div className="mb-8 flex flex-col items-center gap-4">
         {/* SEO: descriptive alt text for the logo image */}

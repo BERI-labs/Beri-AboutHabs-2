@@ -274,8 +274,13 @@ export function ChatWindow() {
   // ── MAIN CHAT UI ──────────────────────────────────────────────
   return (
     // SEO: use <main> landmark for accessibility and crawler content discovery
+    //
+    // Fix: welcome state uses min-h-screen (page/body scrolls freely) while
+    // chat state keeps h-screen so the InputBar stays pinned at the bottom.
+    // A fixed h-screen in welcome mode trapped scroll in the WelcomeScreen's
+    // inner overflow-y:auto container, causing scroll lock on Windows touch.
     <main
-      className="flex flex-col h-screen max-w-4xl mx-auto"
+      className={`flex flex-col ${appState === "welcome" ? "min-h-screen" : "h-screen"} max-w-4xl mx-auto`}
       style={{ background: "var(--beri-navy)" }}
     >
       {/* First-visit welcome modal */}

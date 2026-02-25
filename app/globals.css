@@ -26,9 +26,24 @@
   padding: 0;
 }
 
-html,
-body {
+html {
   height: 100%;
+}
+
+body {
+  /*
+   * Fix: use min-height instead of height so the body can grow beyond the
+   * viewport when the welcome-screen content overflows.  Previously,
+   * height: 100% locked the body to exactly the viewport height, making
+   * page-level scroll impossible and forcing all scrolling into a nested
+   * overflow-y:auto container — which caused touch/trackpad scroll to get
+   * "stuck" at the bottom on Windows Surface / Edge / Chrome.
+   *
+   * overscroll-behavior: none prevents the pull-to-refresh / elastic-bounce
+   * effect from interfering with the inner MessageList scroll in chat mode.
+   */
+  min-height: 100%;
+  overscroll-behavior: none;
   background-color: var(--beri-navy);
   color: var(--beri-white);
   font-family: "DM Sans", system-ui, sans-serif;
