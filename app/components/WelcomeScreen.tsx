@@ -1,5 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
+
+// Set to true locally to see scroll diagnostics in the console.
+// Never commit as true.
+const DEBUG_SCROLL = false;
+
 const STARTER_QUESTIONS = [
   "What are the school fees for Senior School?",
   "When is the 11+ registration deadline?",
@@ -14,11 +20,56 @@ interface WelcomeScreenProps {
 }
 
 export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
+  useEffect(() => {
+    if (!DEBUG_SCROLL) return;
+
+    const report = () => {
+      const html = document.documentElement;
+      const body = document.body;
+      const main = document.querySelector("main");
+      console.log("[scroll-debug]", {
+        "window.scrollY": window.scrollY,
+        "scrollingEl.scrollTop": document.scrollingElement?.scrollTop,
+        html_overflow: getComputedStyle(html).overflow,
+        html_height: getComputedStyle(html).height,
+        body_overflow: getComputedStyle(body).overflow,
+        body_height: getComputedStyle(body).height,
+        main_overflow: main ? getComputedStyle(main).overflow : "n/a",
+        main_height: main ? getComputedStyle(main).height : "n/a",
+        center_el: document.elementFromPoint(
+          window.innerWidth / 2,
+          window.innerHeight / 2,
+        )?.tagName,
+      });
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      report();
+      if (e.defaultPrevented)
+        console.warn("[scroll-debug] wheel defaultPrevented by", e.target);
+    };
+    const onTouch = (e: TouchEvent) => {
+      report();
+      if (e.defaultPrevented)
+        console.warn("[scroll-debug] touchmove defaultPrevented by", e.target);
+    };
+
+    window.addEventListener("wheel", onWheel, { capture: true, passive: true });
+    window.addEventListener("touchmove", onTouch, {
+      capture: true,
+      passive: true,
+    });
+    return () => {
+      window.removeEventListener("wheel", onWheel, { capture: true });
+      window.removeEventListener("touchmove", onTouch, { capture: true });
+    };
+  }, []);
+
   return (
-    {/* Fix: overflow-y-auto removed — the parent <main> now uses min-h-screen
-        in welcome state, so the page/body scrolls rather than this inner
-        container.  Eliminating the nested scroller prevents the touch/trackpad
-        "stuck at bottom" bug on Windows Surface, Edge, and Chrome. */}
+    // overflow-y-auto removed: parent <main> uses min-h-screen in welcome
+    // state so the page/body scrolls rather than this inner container.
+    // Eliminating the nested scroller fixes the touch/trackpad "stuck at
+    // bottom" bug on Windows Surface, Edge, and Chrome.
     <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
       {/* Logo */}
       <div className="mb-8 flex flex-col items-center gap-4">
