@@ -13,6 +13,8 @@ const STARTER_QUESTIONS = [
   "Who is the Headmaster?",
   "What were the 2025 A-Level results?",
   "How do I get financial help?",
+  "Is Habs suited for my athletic son?",
+  "What does Habs do to prepare students for university?",
 ];
 
 interface WelcomeScreenProps {
@@ -123,7 +125,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         {/* GEO: "What is Beri?" paragraph optimised for AI summaries and answer boxes */}
         <p
           className="text-xs leading-relaxed"
-          style={{ color: "var(--beri-text-muted)" }}
+          style={{ color: "var(--beri-text-soft)" }}
         >
           Beri is a student-built AI tool created by{" "}
           <a
@@ -160,94 +162,8 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         ))}
       </div>
 
-      {/* GEO: FAQ section — structured for AI answer engines and featured snippets */}
-      <section
-        aria-label="Frequently asked questions about Beri"
-        className="max-w-2xl w-full"
-      >
-        {/* SEO: H2 for FAQ section — correct heading hierarchy (H1 → H2) */}
-        <h2
-          className="text-sm font-semibold uppercase tracking-widest text-center mb-4"
-          style={{ color: "var(--beri-text-muted)" }}
-        >
-          About Beri
-        </h2>
-
-        <dl className="space-y-4">
-          {/* GEO: each dt/dd pair is a concise Q&A that AI engines can quote directly */}
-          <div>
-            <dt
-              className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-accent-hover)" }}
-            >
-              What is Beri?
-            </dt>
-            <dd
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-text-soft)" }}
-            >
-              Beri is a school AI chatbot built by BERI Labs — a student-led AI
-              education project. It answers questions about Haberdashers&apos;
-              Boys&apos; School using a custom based AI education framework,
-              with an emphasis on grounded citations.
-            </dd>
-          </div>
-
-          <div>
-            <dt
-              className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-accent-hover)" }}
-            >
-              What can Beri help me with?
-            </dt>
-            <dd
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-text-soft)" }}
-            >
-              Beri covers 11+ and 13+ admissions, school fees and bursaries,
-              GCSE and A-level subject choices, sports and extracurricular
-              activities — all with cited sources from the school&apos;s
-              knowledge base.
-            </dd>
-          </div>
-
-          <div>
-            <dt
-              className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-accent-hover)" }}
-            >
-              Who built Beri?
-            </dt>
-            <dd
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-text-soft)" }}
-            >
-              Beri is one of several student-built AI tools developed by BERI
-              Labs, a student-led AI education framework focused on building
-              education AI infrastructure for UK schools. It is not an official
-              school service — always verify critical information directly with
-              the school.
-            </dd>
-          </div>
-
-          <div>
-            <dt
-              className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-accent-hover)" }}
-            >
-              How does Beri work?
-            </dt>
-            <dd
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-text-soft)" }}
-            >
-              Beri uses a bespoke hybrid search method that queries the
-              school&apos;s knowledge base, then generating a response grounded
-              in those sources — so answers are accurate and traceable.
-            </dd>
-          </div>
-        </dl>
-      </section>
+      {/* Bottom padding to clear the floating input bar */}
+      <div className="pb-28" />
     </div>
   );
 }
