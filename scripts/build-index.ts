@@ -8,6 +8,7 @@ interface Chunk {
   embedding: number[];
   section: string;
   chunkIndex: number;
+  url?: string;
 }
 
 function classifySection(title: string): string {
@@ -92,6 +93,11 @@ async function buildIndex() {
   for (const section of sections) {
     const titleMatch = section.match(/^## (.+)$/m);
     const title = titleMatch ? titleMatch[1].trim() : `Chunk ${chunkIndex}`;
+
+    // Extract source URL before stripping it from the text
+    const sourceMatch = section.match(/\*\*Source:\*\*\s*(https?:\/\/\S+)/m);
+    const url = sourceMatch ? sourceMatch[1].trim() : undefined;
+
     const text = section
       .replace(/^## .+$/m, "")
       .replace(/\*\*Source:\*\*.+$/gm, "")
@@ -119,6 +125,7 @@ async function buildIndex() {
             embedding,
             section: classifySection(title),
             chunkIndex: chunkIndex++,
+            url,
           });
           buffer = para;
           subIndex++;
@@ -150,6 +157,7 @@ async function buildIndex() {
         embedding,
         section: classifySection(title),
         chunkIndex: chunkIndex++,
+        url,
       });
     }
 

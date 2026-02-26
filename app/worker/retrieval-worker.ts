@@ -9,6 +9,7 @@ interface Chunk {
   embedding: number[];
   section: string;
   chunkIndex: number;
+  url?: string;
 }
 
 let chunks: Chunk[] = [];
@@ -196,6 +197,11 @@ function parseMarkdown(markdown: string): Chunk[] {
   for (const section of sections) {
     const titleMatch = section.match(/^## (.+)$/m);
     const title = titleMatch ? titleMatch[1].trim() : `Chunk ${chunkIndex}`;
+
+    // Extract source URL before stripping it from the text
+    const sourceMatch = section.match(/\*\*Source:\*\*\s*(https?:\/\/\S+)/m);
+    const url = sourceMatch ? sourceMatch[1].trim() : undefined;
+
     const text = section
       .replace(/^## .+$/m, "")
       .replace(/\*\*Source:\*\*.+$/gm, "")
@@ -221,6 +227,7 @@ function parseMarkdown(markdown: string): Chunk[] {
             embedding: [],
             section: classifySection(title),
             chunkIndex: chunkIndex++,
+            url,
           });
           buffer = para;
           subIndex++;
@@ -235,6 +242,7 @@ function parseMarkdown(markdown: string): Chunk[] {
           embedding: [],
           section: classifySection(title),
           chunkIndex: chunkIndex++,
+          url,
         });
       }
     } else if (estimatedTokens < 30 && result.length > 0) {
@@ -246,6 +254,7 @@ function parseMarkdown(markdown: string): Chunk[] {
         embedding: [],
         section: classifySection(title),
         chunkIndex: chunkIndex++,
+        url,
       });
     }
   }
@@ -353,7 +362,7 @@ async function handleSearch(query: string, id: string) {
 
   const mapped = results
     .map((r) => ({
-      chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex },
+      chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,
     }))
     .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
