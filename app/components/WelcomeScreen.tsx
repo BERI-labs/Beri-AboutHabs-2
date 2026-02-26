@@ -184,9 +184,8 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
             >
               Beri is a school AI chatbot built by BERI Labs — a student-led AI
               education project. It answers questions about Haberdashers&apos;
-              Boys&apos; School using a browser-based AI education framework
-              that runs entirely on your device, with no data sent to external
-              servers.
+              Boys&apos; School using a custom based AI education framework,
+              with an emphasis on grounded citations.
             </dd>
           </div>
 
@@ -203,8 +202,8 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
             >
               Beri covers 11+ and 13+ admissions, school fees and bursaries,
               GCSE and A-level subject choices, sports and extracurricular
-              activities, and general school policies — all with cited sources
-              from the school knowledge base.
+              activities — all with cited sources from the school&apos;s
+              knowledge base.
             </dd>
           </div>
 
@@ -238,10 +237,9 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
               className="text-sm leading-relaxed"
               style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
             >
-              Beri uses retrieval-augmented generation (RAG): it searches a
-              curated school knowledge base using hybrid keyword and semantic
-              search, then generates a response grounded in those sources —
-              so answers are accurate and traceable.
+              Beri uses a bespoke hybrid search method that queries the
+              school&apos;s knowledge base, then generating a response grounded
+              in those sources — so answers are accurate and traceable.
             </dd>
           </div>
         </dl>

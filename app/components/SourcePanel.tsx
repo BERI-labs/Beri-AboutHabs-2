@@ -7,10 +7,121 @@ interface SourcePanelProps {
   sources: SearchResult[];
 }
 
+/**
+ * Lightweight markdown renderer for citation text.
+ * Handles: bold, italic, tables, line breaks.
+ */
+function renderMarkdown(text: string): React.ReactNode {
+  const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Detect markdown table (line starting with |)
+    if (line.trim().startsWith("|")) {
+      const tableLines: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith("|")) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      elements.push(renderTable(tableLines, elements.length));
+      continue;
+    }
+
+    // Regular line — render inline markdown
+    elements.push(
+      <span key={elements.length}>
+        {renderInline(line)}
+        {i < lines.length - 1 && <br />}
+      </span>
+    );
+    i++;
+  }
+
+  return elements;
+}
+
+/** Parse a markdown table block into a <table> element. */
+function renderTable(lines: string[], key: number): React.ReactNode {
+  const parseRow = (line: string) =>
+    line
+      .split("|")
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+
+  // Filter out separator rows (e.g. |---|---|)
+  const dataRows = lines.filter(
+    (l) => !/^\|[\s\-:|]+\|$/.test(l.trim())
+  );
+
+  if (dataRows.length === 0) return null;
+
+  const header = parseRow(dataRows[0]);
+  const body = dataRows.slice(1).map(parseRow);
+
+  return (
+    <div key={key} className="overflow-x-auto my-1.5">
+      <table className="w-full text-[11px] border-collapse">
+        <thead>
+          <tr>
+            {header.map((cell, j) => (
+              <th
+                key={j}
+                className="text-left px-2 py-1 border-b border-[#D4A843]/20 font-semibold"
+                style={{ color: "var(--beri-gold)" }}
+              >
+                {renderInline(cell)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {body.map((row, r) => (
+            <tr key={r}>
+              {row.map((cell, c) => (
+                <td
+                  key={c}
+                  className="px-2 py-1 border-b border-[#D4A843]/10"
+                >
+                  {renderInline(cell)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Render inline markdown: **bold** and *italic*. */
+function renderInline(text: string): React.ReactNode {
+  // Split on bold (**text**) and italic (*text*) patterns
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={i} style={{ color: "var(--beri-white)", fontWeight: 600 }}>
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    }
+    return part;
+  });
+}
+
 export function SourcePanel({ sources }: SourcePanelProps) {
   const [open, setOpen] = useState(false);
 
   if (!sources || sources.length === 0) return null;
+
+  // Sort by decreasing match percentage
+  const sorted = [...sources].sort((a, b) => b.score - a.score);
 
   return (
     <div className="mt-2">
@@ -35,7 +146,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
 
       {open && (
         <div className="mt-2 space-y-2 animate-fade-in">
-          {sources.map((s, i) => (
+          {sorted.map((s, i) => (
             <details
               key={i}
               className="group rounded-lg border border-[#D4A843]/20 bg-[#D4A843]/5 overflow-hidden"
@@ -56,7 +167,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                 </span>
               </summary>
               <div className="px-3 pb-3 pt-1 text-xs leading-relaxed text-[#B8BDD0] border-t border-[#D4A843]/10">
-                {s.chunk.text}
+                {renderMarkdown(s.chunk.text)}
               </div>
             </details>
           ))}
