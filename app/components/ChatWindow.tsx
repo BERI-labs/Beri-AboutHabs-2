@@ -6,10 +6,11 @@ import { RAGOrchestrator } from "../lib/rag";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { MessageList } from "./MessageList";
 import { InputBar } from "./InputBar";
-import { WelcomeModal } from "./WelcomeModal";
+import { AboutBeriModal } from "./AboutBeriModal";
 
 type WorkerStatus = "loading" | "orama-ready" | "embedder-ready" | "embedder-fallback";
 
+const ABOUT_STORAGE_KEY = "beri-about-seen";
 const MAX_MESSAGES_PER_CONVERSATION = 42;
 const MAX_MESSAGES_PER_WINDOW = 3;
 const RATE_WINDOW_MS = 8000;
@@ -21,6 +22,7 @@ export function ChatWindow() {
   const [workerStatus, setWorkerStatus] = useState<WorkerStatus>("loading");
   const [embedderProgress, setEmbedderProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [aboutBeriOpen, setAboutBeriOpen] = useState(false);
 
   // Rate limiting
   const [messageCount, setMessageCount] = useState(0);
@@ -33,6 +35,26 @@ export function ChatWindow() {
   const apiKeyMissing =
     typeof window !== "undefined" &&
     !process.env.NEXT_PUBLIC_GROQ_API_KEY;
+
+  // Show About Beri popup on first visit
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(ABOUT_STORAGE_KEY)) {
+        setAboutBeriOpen(true);
+      }
+    } catch {
+      // localStorage unavailable
+    }
+  }, []);
+
+  const closeAboutBeri = () => {
+    setAboutBeriOpen(false);
+    try {
+      localStorage.setItem(ABOUT_STORAGE_KEY, "1");
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     if (apiKeyMissing) {
@@ -283,8 +305,8 @@ export function ChatWindow() {
       className={`flex flex-col ${appState === "welcome" ? "min-h-screen" : "h-screen"} max-w-4xl mx-auto`}
       style={{ background: "var(--beri-bg)" }}
     >
-      {/* First-visit welcome modal */}
-      <WelcomeModal />
+      {/* About Beri modal (first-visit popup + reopenable) */}
+      <AboutBeriModal open={aboutBeriOpen} onClose={closeAboutBeri} />
 
       {/* SEO: <header> landmark with descriptive logo alt text */}
       <header
@@ -302,11 +324,7 @@ export function ChatWindow() {
           <img
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.png`}
             alt="BERI Labs logo"
-            className="w-7 h-7 rounded-full"
-            style={{
-              border: "1.5px solid var(--beri-accent-light)",
-              boxShadow: "0 2px 8px var(--beri-shadow)",
-            }}
+            className="w-7 h-7"
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}
@@ -326,6 +344,16 @@ export function ChatWindow() {
             </span>
           </div>
         </a>
+
+        {/* About Beri button — always visible after first visit popup */}
+        <button
+          onClick={() => setAboutBeriOpen(true)}
+          className="text-xs font-semibold uppercase tracking-widest transition-opacity hover:opacity-60"
+          style={{ color: "var(--beri-text-muted)" }}
+          aria-label="Open About Beri"
+        >
+          About Beri
+        </button>
       </header>
 
       {/* Content */}
