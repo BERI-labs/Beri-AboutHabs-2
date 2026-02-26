@@ -187,11 +187,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     <div className="flex items-start gap-3 mb-4 animate-slide-up">
       {/* Beri avatar */}
       <div
-        className="flex-shrink-0 w-7 h-7 rounded-full overflow-hidden mt-0.5"
-        style={{
-          border: "1.5px solid var(--beri-accent-light)",
-          boxShadow: "0 2px 8px var(--beri-shadow)",
-        }}
+        className="flex-shrink-0 w-7 h-7 overflow-hidden mt-0.5"
       >
         <img
           src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.png`}
