@@ -6,6 +6,8 @@
 
 Haberdashers' Boys' School (Habs Boys) is an independent day school for boys aged 4–18, located at Butterfly Lane, Elstree, Hertfordshire, WD6 3AF. Phone: 020 8266 1700. The school sits on a 100-acre co-educational campus shared with Haberdashers' Girls' School. Habs Boys was founded in 1690 by Royal Charter, funded by a bequest from Robert Aske to the Worshipful Company of Haberdashers. The school educates around 1,450 pupils, including approximately 360 in the Prep School. It was named Independent School of the Year 2025 (overall winner) and Independent School of the Year for Outstanding Educational Partnerships. The school motto is "Together, boundless."
 
+**Source:** https://www.habselstree.org.uk/boys/
+
 ---
 
 ## School Structure
@@ -15,6 +17,8 @@ Haberdashers' Boys' School (Habs Boys) is an independent day school for boys age
 | Prep School | Reception–Year 6 | 4–11 | 300+ boys; 2 classes per year (Reception–Y2), 3 classes per year (Y3–6) |
 | Senior School | Years 7–11 | 11–16 | Core academic programme |
 | Sixth Form | Years 12–13 | 16–18 | Co-taught A-Level classes with Habs Girls |
+
+**Source:** https://www.habselstree.org.uk/boys/
 
 ---
 
@@ -26,6 +30,8 @@ Gus Lock is a former Habs Boys pupil and Old Haberdashers alumnus who studied An
 
 The Director of Marketing, Communications and Admissions is Avril Tooley. The Admissions Registrar is Binnur Rogers. Admissions team members include Chantal Gilbert and Jennifer Adams (Assistant Registrar).
 
+**Source:** https://www.habselstree.org.uk/boys/about-us/our-leadership-team/
+
 ---
 
 ## Vision and Values
@@ -34,11 +40,15 @@ The school's vision is to be at the forefront of education. Its mission is to of
 
 The four core values are: Ambitious (bold, challenging the status quo, selfless lever for change), Curious (questioning, creative, bringing awe and wonder to learning), Courageous (exploring beyond comfort zones, resilient, unflinching problem-solvers), and Community (caring, respectful, inclusive, celebrating differences, locally and globally focused).
 
+**Source:** https://www.habselstree.org.uk/boys/about-us/welcome-from-our-headmaster/
+
 ---
 
 ## Admissions Entry Points
 
 Entry points are: 4+ (Reception), 7+ (Year 3), 11+ (Year 7), 13+ (Year 9), 16+ (Sixth Form), and occasional places in other year groups. Contact: admissionsboys@habselstree.org.uk
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
 
 ---
 
@@ -46,11 +56,15 @@ Entry points are: 4+ (Reception), 7+ (Year 3), 11+ (Year 7), 13+ (Year 9), 16+ (
 
 For September 2026 entry. Registration deadline: Thursday 20 November 2025. Play-based assessment (1.5 hours, individual and group activities): Monday 15–Wednesday 17 December 2025. Second round assessment (one-to-one, 1 hour, with senior staff): Monday 12–Tuesday 20 January 2026. Offers sent out: Monday 26 January 2026. Offer holders' day: Thursday 29 January 2026. Offer acceptance deadline: Wednesday 4 February 2026, 12pm. Approximately 40 places offered annually. Children must be age 4 by 1 September in the year of entry. A nursery reference is requested. Parents meet with the Head of Prep.
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
+
 ---
 
 ## 7+ Year 3 Entry
 
 For September 2026 entry. Registration deadline: Thursday 6 November 2025. Formal assessment (Reasoning, Maths, English): Friday 21 November 2025. Second round assessments (English and STEM, approximately 50% invited): Wednesday 17 December 2025. Offers sent out: Friday 23 January 2026. Offer holders' day: Friday 30 January 2026. Offer acceptance deadline: Wednesday 4 February 2026, 12pm. Approximately 26 places available (three-form entry, approximately 22 per class). Children must be age 7 by 1 September in the year of entry. Parents meet with the Head of Prep.
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
 
 ---
 
@@ -62,6 +76,8 @@ Assessment components — Online adaptive tests: Maths (20 min), Non-Verbal Reas
 
 Students can sit the 11+ exam and defer entry to Year 9 (age 13). No further tests are required; a satisfactory headteacher reference is needed.
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
+
 ---
 
 ## 13+ Year 9 Entry
@@ -69,6 +85,8 @@ Students can sit the 11+ exam and defer entry to Year 9 (age 13). No further tes
 For September 2026 entry. Registration and scholarship deadline: Thursday 6 November 2025. Bursary deadline: Friday 28 November 2025. First round assessment: Friday 28 November 2025. Second round assessment: Wednesday 21 January 2026. Offers sent out by post: Thursday 12 February 2026. Offer holders' day: Tuesday 24 February 2026. Conditional acceptance deadline: Thursday 26 February 2026, 12pm. Approximately 20 external places available. Children must be age 13 by 1 September in the year of entry.
 
 Written exams in: English, Maths, Humanities (History, Geography, Theology and Philosophy), Science (Biology, Chemistry, Physics). Successful candidates are invited for interview.
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
 
 ---
 
@@ -82,17 +100,23 @@ GCSE grade requirements for A-Level subjects: Most subjects require minimum Grad
 
 Assessment: One-hour general paper (past papers available), one-hour Maths paper (for STEM students), structured subject interviews for successful candidates. Headteacher report and predicted grades are requested.
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
+
 ---
 
 ## Occasional Places and International Students
 
 Occasional places for non-standard year groups are assessed in late February or early March for September entry. Assessment includes English, Maths, and interview. International students: The school is not licensed as a Child Student sponsor. All UK study permissions must be independently arranged.
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
+
 ---
 
 ## Admissions FAQs
 
 Tutoring is not recommended for 4+ or 7+ entry. There is no sibling preference — each child is assessed individually. The school takes equal intake from state and independent schools. 11+ preparation is based on Key Stage 2 and no tutoring is needed.
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/admissions-process/
 
 ---
 
@@ -109,11 +133,15 @@ All fees include 20% VAT from January 2025.
 
 Fees include stationery, textbooks, apparatus, and accident/dental insurance. Prep fees include lunch. Additional charges: Devices (£125 per term, Year 7 onwards), Senior lunch (£5.25 per day, optional), trips, and music lessons. Payment is by three termly instalments via direct debit. A full term's notice is required for withdrawal. Acceptance deposit: 50% of one term's fees (returned when the child completes Habs).
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/fees/
+
 ---
 
 ## VAT Treatment
 
 VAT at 20% applies to: fees, devices, Prep lunch (included in fees), music lessons, and educational clubs. VAT exempt: Senior lunch (optional), home-to-school coach, educational trips, childcare clubs, and exam fees. Fees In Advance paid after 29 July 2024 are subject to VAT. Fees In Advance paid before 29 July 2024 may be exempt but are under HMRC scrutiny.
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/fees/
 
 ---
 
@@ -124,6 +152,8 @@ Device rental: £125 per term (Years 7–12).
 Music lessons (including VAT): Individual lessons £373 per term, Group lessons £228 per term, Group Aural/Theory £120 per term, Instrument hire £51 per term.
 
 Available instruments: Bassoon, Cello, Clarinet, Double Bass, Drums, Euphonium, Flute, French Horn, Guitar (Classical, Electric, Jazz), Harmonium, Oboe, Organ, Piano, Saxophone, Tabla, Trombone, Trumpet, Tuba, Viola, Violin, Voice, Dhol, Dholak.
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/fees/
 
 ---
 
@@ -136,6 +166,8 @@ Available instruments: Bassoon, Cello, Clarinet, Double Bass, Drums, Euphonium, 
 
 Contact: feesboys@habselstree.org.uk
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/fees/
+
 ---
 
 ## Bursaries
@@ -143,6 +175,8 @@ Contact: feesboys@habselstree.org.uk
 Available for 11+, 13+, and 16+ entry. Means-tested financial support for families who cannot afford full fees. A place must be offered first based on academic merit. Requires a confidential income statement. Can combine with scholarships.
 
 Bursary application deadlines: 11+ entry: Friday 21 November 2025. 13+ entry: Friday 28 November 2025. 16+ entry: Tuesday 4 November 2025.
+
+**Source:** https://www.habselstree.org.uk/boys/admissions/fee-assistance/
 
 ---
 
@@ -152,6 +186,8 @@ Available for 11+, 13+, and 16+ entry. Categories: Academic, Art, Design Technol
 
 Scholarship application deadlines: 11+ entry: Thursday 6 November 2025. 13+ entry: Thursday 6 November 2025. 16+ entry: Monday 20 October 2025.
 
+**Source:** https://www.habselstree.org.uk/boys/admissions/scholarships/
+
 ---
 
 ## Prep School (Ages 4–11)
@@ -160,6 +196,8 @@ Over 300 day boys, ages 4–11. Entry at 4+ (Reception) or 7+ (Year 3). Receptio
 
 Educational philosophy: fun at the heart of education. Awe and wonder inspire curiosity. Develop well-rounded individuals excelling academically while passionate about sport, music, and arts. Focus on strong moral compass, empathy, solution-creation, and leadership. Positively-worded Code of Conduct emphasises personal responsibility, learning from mistakes, and restorative justice.
 
+**Source:** https://www.habselstree.org.uk/boys/prep/life-in-our-prep-school/
+
 ---
 
 ## Prep Co-Educational Opportunities
@@ -167,6 +205,8 @@ Educational philosophy: fun at the heart of education. Awe and wonder inspire cu
 Boys-only classes free from gender expectations, with shared activities with Habs Girls.
 
 Reception–Year 2: shared playtimes, joint musical workshops, Forest School, egg hunts, teddy bears' picnics. Years 3–6: shared lunch and playtimes, script-writing, Maths workshops, Planetarium, joint choir, Lunchtime Live performances, and sports festivals.
+
+**Source:** https://www.habselstree.org.uk/boys/prep/life-in-our-prep-school/
 
 ---
 
@@ -184,6 +224,8 @@ Reception–Year 2: shared playtimes, joint musical workshops, Forest School, eg
 
 Wraparound care provided by Premier Education. Hours: after school to 6:00pm Monday–Friday. Includes light snack. Book 24 hours in advance (or midday same day subject to availability). Payment: card, instalments, childcare vouchers, tax-free childcare. Contact: info@premier-education.com, 01953 499040. Booking: premier-education.com
 
+**Source:** https://www.habselstree.org.uk/boys/prep/life-in-our-prep-school/
+
 ---
 
 ## Senior School (Years 7–11)
@@ -193,6 +235,8 @@ Ambitious, challenging, exciting curriculum with expert teachers. Active, indepe
 Year 7: French, Spanish, German carousel, then choose 2 languages in Year 8. Years 7–9: set but flexible curriculum. Higher years: greater personalisation, up to 4 optional GCSE subjects. Extended research projects throughout (Family History in Y7, academic papers later). National and international competitions (Maths and Science olympiads), external speakers, and academic societies.
 
 Lower School (Y7–8) transitions to Middle School (Y9–11) then to Sixth Form with bespoke one-to-one guidance at each stage. The school operates a no-phone policy from Years 7–11.
+
+**Source:** https://www.habselstree.org.uk/boys/senior/life-in-our-senior-school/
 
 ---
 
@@ -205,6 +249,8 @@ Lower School (Y7–8) transitions to Middle School (Y9–11) then to Sixth Form 
 | Grades 9–7 (A*–A equivalent) | 91.5% |
 
 All students in Maths, DT, and Music achieved grades 9–7. The 2024 cohort achieved the school's best GCSE results from a normal exam series in recent years. A high proportion of students progress to Russell Group universities and Oxbridge.
+
+**Source:** https://www.habselstree.org.uk/boys/senior/life-in-our-senior-school/
 
 ---
 
@@ -224,6 +270,8 @@ In 2025, the most popular A-Level subjects by entry were Mathematics (131 entrie
 
 The class of 2024 was the first Sixth Form cohort to have been taught at least one A-Level subject in a co-educational class with Habs Girls, alongside their co-educational Habs Diploma lessons.
 
+**Source:** https://www.habselstree.org.uk/boys/whats-on/our-news/a-level-class-of-2025/
+
 ---
 
 ## Sixth Form (Years 12–13)
@@ -236,17 +284,23 @@ Available A-Level subjects: Art, Biology, Chemistry, Classical Civilisation*, Cl
 
 Entry requirement: 9 GCSEs including Maths and English.
 
+**Source:** https://www.habselstree.org.uk/boys/sixth-form/
+
 ---
 
 ## Habs Diploma
 
 Taken alongside A-Levels by all Sixth Form students. Accredited by the University of Buckingham from September 2024. Components: subject enhancement course, six elective courses, visiting speaker programme, community service, and extended research project. Prepares students for university and life beyond school.
 
+**Source:** https://www.habselstree.org.uk/boys/sixth-form/
+
 ---
 
 ## Sixth Form Beyond the Classroom
 
 Trips, visits, speakers, and experience days. UK and international residential trips (curriculum and extra-curricular). Leadership development, sports, music, drama, clubs, Combined Cadet Force (CCF), Duke of Edinburgh awards. Diverse interests include calligraphy, water polo, birdwatching, and politics. Heavy investment in university preparation with support throughout Y12–13 for applications and career advice.
+
+**Source:** https://www.habselstree.org.uk/boys/sixth-form/beyond-the-classroom/
 
 ---
 
@@ -258,17 +312,23 @@ Seasonal focus: Autumn — Football, Rugby. Spring — Hockey. Summer — Cricke
 
 HabsDash: Weekly 3.5km community run, Tuesday lunchtimes, open to students and staff across both schools.
 
+**Source:** https://www.habselstree.org.uk/boys/sixth-form/beyond-the-classroom/sport/
+
 ---
 
 ## High-Performance Sport and Partnerships
 
 Coached sessions in cricket, football, hockey, rugby, water polo, and swimming, led by professional sportspeople and Athletic Development Leads. Partnerships: Middlesex Cricket, Watford Football, Saracens Rugby, Watford Waterpolo. Students compete at district, county, and national level. Performances at StoneX and Lords stadiums. ISI Report 2022 noted students achieve excellent results regionally and nationally, with teams reaching quarter-final stage of national competitions in rugby and football.
 
+**Source:** https://www.habselstree.org.uk/boys/sixth-form/beyond-the-classroom/sport/
+
 ---
 
 ## Facilities
 
 The 100-acre campus includes: Aldenham House (historic centrepiece, Grade II* listed building), Seldon Music Hall (music performances), Lime Tree Studios (Drama), The Habs Innovation Centre (STEM and technology), The Medburn Centre (sports complex), senior gym, indoor swimming pool, fitness suite, 7 outdoor netball courts, 9 outdoor tennis courts, sports fields, Forest School, and Wildwood Den.
+
+**Source:** https://www.habselstree.org.uk/boys/about-us/our-campus/
 
 ---
 
@@ -280,6 +340,8 @@ Senior School Houses: Calverts (Orange), Hendersons (Red), Joblings (Green), Mea
 
 Prep School Houses are named after patron saints: St George's, St Patrick's, St David's, St Andrew's.
 
+**Source:** https://www.habselstree.org.uk/boys/senior/life-in-our-senior-school/
+
 ---
 
 ## History
@@ -288,6 +350,8 @@ Founded 1690 by Royal Charter using a bequest from Robert Aske to the Worshipful
 
 In 2021, Robert Aske's name was dropped from the school following the discovery of his links with the Royal African Company and the slave trade. The motto was changed from "Serve and Obey" to "Together, boundless." The Hinton and Taylor buildings, comprising 46 classrooms, academic offices, and a drama studio, were completed in 2022.
 
+**Source:** https://www.habselstree.org.uk/boys/
+
 ---
 
 ## Strategic Plan and Affiliations
@@ -295,6 +359,8 @@ In 2021, Robert Aske's name was dropped from the school following the discovery 
 The school follows a 10-year "Profound Impact" strategy (published September 2022), uniting Habs Boys and Habs Girls under a shared vision of single-sex education on a co-educational campus. Six strategic aims: Learning, Caring, Exploring, Partnerships, Talent, Campus.
 
 Part of the Haberdashers' Company and Schools. Member of ISI (Independent Schools Inspectorate), HMC (Headmasters' and Headmistresses' Conference), ISC (Independent Schools Council), GSA, IAPS, ISBA, AGBIS. Two schools have recently joined the Haberdashers' Elstree family: Lochinver House School (from September 2025), and St Martin's School, Northwood (joining from April 2026).
+
+**Source:** https://www.habselstree.org.uk/boys/
 
 ---
 
@@ -305,6 +371,8 @@ Address: Haberdashers' Boys' School, Butterfly Lane, Elstree, Hertfordshire, WD6
 Email contacts: Admissions — admissionsboys@habselstree.org.uk. Fees Office — feesboys@habselstree.org.uk. VAT Enquiries — VATenquiries@habselstree.org.uk.
 
 Website: https://www.habselstree.org.uk/boys/. Habs App: https://app.weduc.co.uk/. SOCS Calendar: https://calendar.habselstree.org.uk/week.aspx?ID=129
+
+**Source:** https://www.habselstree.org.uk/boys/contact-us/
 
 ---
 

@@ -6,6 +6,7 @@ export interface ChunkDoc {
   embedding: number[];
   section: string;
   chunkIndex: number;
+  url?: string;
 }
 
 export interface SearchResult {
@@ -13,6 +14,7 @@ export interface SearchResult {
     title: string;
     text: string;
     chunkIndex: number;
+    url?: string;
   };
   score: number;
 }
