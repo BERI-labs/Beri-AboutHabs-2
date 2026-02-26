@@ -46,7 +46,7 @@ export function InputBar({
       style={{ background: "var(--beri-bg)" }}
     >
       <div
-        className="flex items-end gap-2 rounded-2xl border px-4 py-3 transition-all duration-150"
+        className="flex items-end gap-2 rounded-2xl border px-4 py-3 transition-all duration-150 cursor-text"
         style={{
           background: "var(--beri-bg)",
           borderColor: canSend ? "var(--beri-accent)" : "var(--beri-border)",
@@ -54,6 +54,7 @@ export function InputBar({
             ? "0 2px 12px var(--beri-shadow)"
             : "0 1px 4px var(--beri-shadow)",
         }}
+        onClick={() => textareaRef.current?.focus()}
       >
         <textarea
           ref={textareaRef}
