@@ -69,8 +69,8 @@ function renderTable(lines: string[], key: number): React.ReactNode {
             {header.map((cell, j) => (
               <th
                 key={j}
-                className="text-left px-2 py-1 border-b border-[#D4A843]/20 font-semibold"
-                style={{ color: "var(--beri-gold)" }}
+                className="text-left px-2 py-1 border-b font-semibold"
+                style={{ borderColor: "var(--beri-accent-light)", color: "var(--beri-accent-hover)" }}
               >
                 {renderInline(cell)}
               </th>
@@ -83,7 +83,8 @@ function renderTable(lines: string[], key: number): React.ReactNode {
               {row.map((cell, c) => (
                 <td
                   key={c}
-                  className="px-2 py-1 border-b border-[#D4A843]/10"
+                  className="px-2 py-1 border-b"
+                  style={{ borderColor: "var(--beri-border-light)" }}
                 >
                   {renderInline(cell)}
                 </td>
@@ -103,7 +104,7 @@ function renderInline(text: string): React.ReactNode {
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={i} style={{ color: "var(--beri-white)", fontWeight: 600 }}>
+        <strong key={i} style={{ color: "var(--beri-text)", fontWeight: 600 }}>
           {part.slice(2, -2)}
         </strong>
       );
@@ -127,7 +128,8 @@ export function SourcePanel({ sources }: SourcePanelProps) {
     <div className="mt-2">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs text-[#D4A843]/70 hover:text-[#D4A843] transition-colors duration-150"
+        className="flex items-center gap-1.5 text-xs transition-colors duration-150"
+        style={{ color: "var(--beri-accent)" }}
         aria-expanded={open}
       >
         <svg
@@ -149,9 +151,16 @@ export function SourcePanel({ sources }: SourcePanelProps) {
           {sorted.map((s, i) => (
             <details
               key={i}
-              className="group rounded-lg border border-[#D4A843]/20 bg-[#D4A843]/5 overflow-hidden"
+              className="group rounded-lg border overflow-hidden"
+              style={{
+                borderColor: "var(--beri-border)",
+                background: "var(--beri-surface)",
+              }}
             >
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-xs text-[#D4A843] hover:bg-[#D4A843]/10 transition-colors select-none list-none">
+              <summary
+                className="flex items-center gap-2 px-3 py-2 cursor-pointer text-xs transition-colors select-none list-none"
+                style={{ color: "var(--beri-accent-hover)" }}
+              >
                 <svg
                   className="w-3 h-3 transition-transform duration-200 group-open:rotate-90 flex-shrink-0"
                   fill="none"
@@ -162,11 +171,14 @@ export function SourcePanel({ sources }: SourcePanelProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
                 <span className="font-medium truncate">{s.chunk.title}</span>
-                <span className="ml-auto opacity-50 text-[10px] flex-shrink-0">
+                <span className="ml-auto text-[10px] flex-shrink-0" style={{ color: "var(--beri-text-muted)" }}>
                   {(s.score * 100).toFixed(0)}% match
                 </span>
               </summary>
-              <div className="px-3 pb-3 pt-1 text-xs leading-relaxed text-[#B8BDD0] border-t border-[#D4A843]/10">
+              <div
+                className="px-3 pb-3 pt-1 text-xs leading-relaxed border-t"
+                style={{ color: "var(--beri-text-soft)", borderColor: "var(--beri-border-light)" }}
+              >
                 {renderMarkdown(s.chunk.text)}
               </div>
             </details>
