@@ -93,7 +93,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <span style={{ fontSize: 40 }}>🫐</span>
           <span
             className="text-3xl font-bold tracking-tight"
-            style={{ color: "var(--beri-white)" }}
+            style={{ color: "var(--beri-text)" }}
           >
             Beri
           </span>
@@ -105,7 +105,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         {/* SEO: single H1 that is clear and keyword-relevant */}
         <h1
           className="text-2xl font-semibold mb-3"
-          style={{ color: "var(--beri-white)" }}
+          style={{ color: "var(--beri-text)" }}
         >
           Hi, I&apos;m Beri
         </h1>
@@ -113,7 +113,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         {/* SEO/GEO: intro paragraph explains what BERI is with natural keywords for AI engines */}
         <p
           className="text-sm leading-relaxed mb-3"
-          style={{ color: "var(--beri-white-soft)" }}
+          style={{ color: "var(--beri-text-soft)" }}
         >
           Your AI guide to Haberdashers&apos; Boys&apos; School — ask me
           anything about admissions, fees, the curriculum, sport, or school
@@ -123,14 +123,14 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         {/* GEO: "What is Beri?" paragraph optimised for AI summaries and answer boxes */}
         <p
           className="text-xs leading-relaxed"
-          style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
+          style={{ color: "var(--beri-text-muted)" }}
         >
           Beri is a student-built AI tool created by{" "}
           <a
             href="https://beri-labs.github.io/"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "var(--beri-gold)", textDecoration: "underline" }}
+            style={{ color: "var(--beri-accent)", textDecoration: "underline" }}
           >
             BERI Labs
           </a>
@@ -149,7 +149,11 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <button
             key={q}
             onClick={() => onQuestion(q)}
-            className="starter-chip px-4 py-2.5 rounded-full text-sm border text-[#D4A843] border-[#D4A843]/40 bg-transparent"
+            className="starter-chip px-4 py-2.5 rounded-full text-sm border bg-transparent"
+            style={{
+              color: "var(--beri-accent-hover)",
+              borderColor: "var(--beri-border)",
+            }}
           >
             {q}
           </button>
@@ -164,7 +168,7 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         {/* SEO: H2 for FAQ section — correct heading hierarchy (H1 → H2) */}
         <h2
           className="text-sm font-semibold uppercase tracking-widest text-center mb-4"
-          style={{ color: "var(--beri-white-soft)", opacity: 0.5 }}
+          style={{ color: "var(--beri-text-muted)" }}
         >
           About Beri
         </h2>
@@ -174,13 +178,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <div>
             <dt
               className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-gold)" }}
+              style={{ color: "var(--beri-accent-hover)" }}
             >
               What is Beri?
             </dt>
             <dd
               className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
+              style={{ color: "var(--beri-text-soft)" }}
             >
               Beri is a school AI chatbot built by BERI Labs — a student-led AI
               education project. It answers questions about Haberdashers&apos;
@@ -192,13 +196,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <div>
             <dt
               className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-gold)" }}
+              style={{ color: "var(--beri-accent-hover)" }}
             >
               What can Beri help me with?
             </dt>
             <dd
               className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
+              style={{ color: "var(--beri-text-soft)" }}
             >
               Beri covers 11+ and 13+ admissions, school fees and bursaries,
               GCSE and A-level subject choices, sports and extracurricular
@@ -210,13 +214,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <div>
             <dt
               className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-gold)" }}
+              style={{ color: "var(--beri-accent-hover)" }}
             >
               Who built Beri?
             </dt>
             <dd
               className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
+              style={{ color: "var(--beri-text-soft)" }}
             >
               Beri is one of several student-built AI tools developed by BERI
               Labs, a student-led AI education framework focused on building
@@ -229,13 +233,13 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           <div>
             <dt
               className="text-sm font-semibold mb-1"
-              style={{ color: "var(--beri-gold)" }}
+              style={{ color: "var(--beri-accent-hover)" }}
             >
               How does Beri work?
             </dt>
             <dd
               className="text-sm leading-relaxed"
-              style={{ color: "var(--beri-white-soft)", opacity: 0.75 }}
+              style={{ color: "var(--beri-text-soft)" }}
             >
               Beri uses a bespoke hybrid search method that queries the
               school&apos;s knowledge base, then generating a response grounded

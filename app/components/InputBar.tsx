@@ -43,13 +43,16 @@ export function InputBar({
   return (
     <div
       className="px-4 pb-4 pt-2"
-      style={{ background: "var(--beri-navy)" }}
+      style={{ background: "var(--beri-bg)" }}
     >
       <div
-        className="flex items-end gap-2 rounded-2xl border px-4 py-3 transition-colors duration-150"
+        className="flex items-end gap-2 rounded-2xl border px-4 py-3 transition-all duration-150"
         style={{
-          background: "var(--beri-surface)",
-          borderColor: canSend ? "var(--beri-gold)/60" : "rgba(184, 189, 208, 0.15)",
+          background: "var(--beri-bg)",
+          borderColor: canSend ? "var(--beri-accent)" : "var(--beri-border)",
+          boxShadow: canSend
+            ? "0 2px 12px var(--beri-shadow)"
+            : "0 1px 4px var(--beri-shadow)",
         }}
       >
         <textarea
@@ -60,23 +63,24 @@ export function InputBar({
           disabled={disabled}
           placeholder={placeholder}
           rows={1}
-          className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-[#B8BDD0]/50 text-[#F0F2F7] leading-relaxed"
-          style={{ maxHeight: "120px" }}
+          className="flex-1 resize-none bg-transparent text-sm outline-none leading-relaxed"
+          style={{
+            maxHeight: "120px",
+            color: "var(--beri-text)",
+          }}
         />
 
         <button
           onClick={handleSend}
           disabled={!canSend}
           aria-label="Send message"
-          className={`
-            flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-            transition-all duration-150
-            ${
-              canSend
-                ? "bg-[#D4A843] text-[#0B1A3B] hover:bg-[#E8C96A] cursor-pointer"
-                : "bg-[#B8BDD0]/10 text-[#B8BDD0]/30 cursor-not-allowed"
-            }
-          `}
+          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-150"
+          style={{
+            background: canSend ? "var(--beri-accent)" : "var(--beri-accent-light)",
+            color: canSend ? "#ffffff" : "var(--beri-text-muted)",
+            cursor: canSend ? "pointer" : "not-allowed",
+            boxShadow: canSend ? "0 2px 8px var(--beri-shadow)" : "none",
+          }}
         >
           <svg
             className="w-4 h-4"
@@ -94,7 +98,7 @@ export function InputBar({
         </button>
       </div>
 
-      <p className="text-center text-[10px] text-[#B8BDD0]/30 mt-2">
+      <p className="text-center text-[10px] mt-2" style={{ color: "var(--beri-text-muted)" }}>
         Beri may make mistakes. Verify important information with the school.
       </p>
     </div>

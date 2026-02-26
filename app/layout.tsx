@@ -156,7 +156,7 @@ export default function RootLayout({
       <head>
         {/* SEO: viewport and theme for mobile and browser UI */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#0B1A3B" />
+        <meta name="theme-color" content="#ffffff" />
         <link rel="icon" href={`${basePath}/favicon.png`} type="image/png" />
 
         {/* SEO: JSON-LD structured data for Google rich results and AI answer engines */}
@@ -165,7 +165,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body style={{ background: "#0B1A3B", minHeight: "100vh" }}>
+      <body style={{ background: "#ffffff", minHeight: "100vh" }}>
         {children}
       </body>
     </html>

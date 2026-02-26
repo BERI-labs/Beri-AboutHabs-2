@@ -201,7 +201,7 @@ export function ChatWindow() {
     return (
       <div
         className="flex flex-col items-center justify-center min-h-screen gap-8"
-        style={{ background: "var(--beri-navy)" }}
+        style={{ background: "var(--beri-bg)" }}
         role="status"
         aria-label="Loading Beri — Haberdashers' Boys' School AI assistant"
       >
@@ -217,7 +217,7 @@ export function ChatWindow() {
         />
         <div
           className="hidden text-3xl font-bold"
-          style={{ color: "var(--beri-white)" }}
+          style={{ color: "var(--beri-text)" }}
         >
           Beri
         </div>
@@ -225,13 +225,13 @@ export function ChatWindow() {
         <div className="w-64 flex flex-col gap-2">
           <div
             className="text-xs text-center"
-            style={{ color: "var(--beri-white-soft)" }}
+            style={{ color: "var(--beri-text-soft)" }}
           >
             Loading knowledge base…
           </div>
           <div
             className="w-full rounded-full overflow-hidden"
-            style={{ background: "var(--beri-navy-light)", height: 3 }}
+            style={{ background: "var(--beri-accent-light)", height: 3 }}
           >
             <div
               className="beri-progress-bar"
@@ -253,7 +253,7 @@ export function ChatWindow() {
     return (
       <main
         className="flex flex-col items-center justify-center min-h-screen gap-4 px-6 text-center"
-        style={{ background: "var(--beri-navy)" }}
+        style={{ background: "var(--beri-bg)" }}
         aria-label="Error"
       >
         <div className="text-4xl mb-2" aria-hidden="true">🫐</div>
@@ -264,7 +264,7 @@ export function ChatWindow() {
         >
           {errorMsg ?? "Beri is not configured."}
         </h1>
-        <p className="text-sm" style={{ color: "var(--beri-white-soft)" }}>
+        <p className="text-sm" style={{ color: "var(--beri-text-soft)" }}>
           Please contact the site administrator.
         </p>
       </main>
@@ -281,7 +281,7 @@ export function ChatWindow() {
     // inner overflow-y:auto container, causing scroll lock on Windows touch.
     <main
       className={`flex flex-col ${appState === "welcome" ? "min-h-screen" : "h-screen"} max-w-4xl mx-auto`}
-      style={{ background: "var(--beri-navy)" }}
+      style={{ background: "var(--beri-bg)" }}
     >
       {/* First-visit welcome modal */}
       <WelcomeModal />
@@ -289,7 +289,7 @@ export function ChatWindow() {
       {/* SEO: <header> landmark with descriptive logo alt text */}
       <header
         className="flex items-center justify-between px-4 py-3 border-b"
-        style={{ borderColor: "rgba(184, 189, 208, 0.1)" }}
+        style={{ borderColor: "var(--beri-border-light)" }}
       >
         <a
           href="https://beri-labs.github.io/"
@@ -302,7 +302,11 @@ export function ChatWindow() {
           <img
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.png`}
             alt="BERI Labs logo"
-            className="w-7 h-7 rounded-full border border-[#D4A843]/30"
+            className="w-7 h-7 rounded-full"
+            style={{
+              border: "1.5px solid var(--beri-accent-light)",
+              boxShadow: "0 2px 8px var(--beri-shadow)",
+            }}
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}
@@ -310,13 +314,13 @@ export function ChatWindow() {
           <div>
             <span
               className="text-sm font-semibold"
-              style={{ color: "var(--beri-white)" }}
+              style={{ color: "var(--beri-text)" }}
             >
               Beri
             </span>
             <span
               className="ml-2 text-xs"
-              style={{ color: "var(--beri-white-soft)" }}
+              style={{ color: "var(--beri-text-soft)" }}
             >
               Habs Boys AI Assistant
             </span>
