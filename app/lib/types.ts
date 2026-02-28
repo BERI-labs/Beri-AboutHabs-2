@@ -17,7 +17,6 @@ export interface SearchResult {
     url?: string;
   };
   score: number;
-  cosineSimilarity?: number;
 }
 
 export interface Message {
