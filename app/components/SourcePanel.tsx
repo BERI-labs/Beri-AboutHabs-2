@@ -99,8 +99,8 @@ function renderTable(lines: string[], key: number): React.ReactNode {
 
 /** Render inline markdown: **bold** and *italic*. */
 function renderInline(text: string): React.ReactNode {
-  // Split on bold (**text**) and italic (*text*) patterns
-  const parts = text.split(/(\*\*[^*]+\*\*|(?<!\w)\*[^*]+\*)/g);
+  // Bold: allow single * within content (e.g. **A*–A**); italic: not preceded/followed by word char
+  const parts = text.split(/(\*\*(?:[^*]|\*(?!\*))+\*\*|(?<!\w)\*[^*]+\*(?!\w))/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
