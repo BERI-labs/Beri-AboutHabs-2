@@ -1,6 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Message } from "../lib/types";
 import { SourcePanel } from "./SourcePanel";
 
@@ -60,6 +61,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           <div className={`beri-prose ${message.isStreaming ? "beri-cursor" : ""}`}>
             {message.content ? (
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   h1: ({ children }) => (
                     <div className="text-base font-semibold mt-2 mb-1" style={{ color: "var(--beri-text)" }}>{children}</div>
