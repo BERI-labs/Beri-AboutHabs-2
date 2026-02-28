@@ -138,11 +138,7 @@ async function hybridSearch(query: string, topK: number) {
   if (!hasEmbeddings) {
     // Embedder not ready — BM25 only; normalize scores to [0, 1] before returning
     const bm25Norm = normalizeScores(bm25Candidates);
-    return bm25Candidates.slice(0, topK).map((r) => ({
-      chunk: r.chunk,
-      score: bm25Norm.get(r.idx) ?? 0,
-      cosineSimilarity: 0,
-    }));
+    return bm25Candidates.slice(0, topK).map((r) => ({ chunk: r.chunk, score: bm25Norm.get(r.idx) ?? 0 }));
   }
 
   // Vector leg
@@ -154,10 +150,6 @@ async function hybridSearch(query: string, topK: number) {
     .sort((a, b) => b.score - a.score)
     .slice(0, topK * 3);
 
-  // Raw cosine similarity lookup (before normalization)
-  const rawCosine = new Map<number, number>();
-  for (const c of vectorCandidates) rawCosine.set(c.idx, c.score);
-
   // Min-max normalize both score sets
   const bm25Norm = normalizeScores(bm25Candidates);
   const vecNorm = normalizeScores(vectorCandidates);
@@ -168,7 +160,7 @@ async function hybridSearch(query: string, topK: number) {
   for (const c of vectorCandidates) allIdxs.add(c.idx);
 
   // Weighted fusion + title-match boost
-  const fused: { chunk: Chunk; score: number; cosineSimilarity: number }[] = [];
+  const fused: { chunk: Chunk; score: number }[] = [];
   for (const idx of allIdxs) {
     const bScore = bm25Norm.get(idx) ?? 0;
     const vScore = vecNorm.get(idx) ?? 0;
@@ -176,7 +168,6 @@ async function hybridSearch(query: string, topK: number) {
     fused.push({
       chunk: chunks[idx],
       score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore + tBoost,
-      cosineSimilarity: rawCosine.get(idx) ?? 0,
     });
   }
 
@@ -389,7 +380,6 @@ async function handleSearch(query: string, id: string) {
     .map((r) => ({
       chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,
-      cosineSimilarity: r.cosineSimilarity,
     }))
     .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
 
