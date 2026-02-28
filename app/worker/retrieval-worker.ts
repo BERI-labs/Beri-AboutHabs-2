@@ -237,14 +237,14 @@ function parseMarkdown(markdown: string): Chunk[] {
     const wordCount = text.split(/\s+/).length;
     const estimatedTokens = Math.round(wordCount * 1.3);
 
-    if (estimatedTokens > 350) {
+    if (estimatedTokens > 500) {
       const paragraphs = text.split(/\n\n+/);
       let buffer = "";
       let subIndex = 0;
 
       for (const para of paragraphs) {
         const combined = buffer ? buffer + "\n\n" + para : para;
-        if (buffer && combined.split(/\s+/).length * 1.3 > 300) {
+        if (buffer && combined.split(/\s+/).length * 1.3 > 450) {
           result.push({
             text: buffer,
             title: subIndex === 0 ? title : `${title} (cont.)`,
@@ -380,7 +380,7 @@ async function _init() {
 // ── Search handler ────────────────────────────────────────────────────────────
 
 async function handleSearch(query: string, id: string) {
-  const topK = 4;
+  const topK = 3;
 
   const results = await hybridSearch(query, topK);
 

@@ -302,7 +302,7 @@ export function ChatWindow() {
     // A fixed h-screen in welcome mode trapped scroll in the WelcomeScreen's
     // inner overflow-y:auto container, causing scroll lock on Windows touch.
     <main
-      className={`flex flex-col ${appState === "welcome" ? "min-h-screen" : "h-screen"} max-w-4xl mx-auto`}
+      className={`flex flex-col ${appState === "welcome" ? "min-h-screen" : "h-screen"}`}
       style={{ background: "var(--beri-bg)" }}
     >
       {/* About Beri modal (first-visit popup + reopenable) */}
@@ -310,9 +310,10 @@ export function ChatWindow() {
 
       {/* SEO: <header> landmark with descriptive logo alt text */}
       <header
-        className="flex items-center justify-between px-4 py-3 border-b"
+        className="border-b"
         style={{ borderColor: "var(--beri-border-light)" }}
       >
+        <div className="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
         <a
           href="https://beri-labs.github.io/"
           target="_blank"
@@ -354,6 +355,7 @@ export function ChatWindow() {
         >
           About Beri
         </button>
+        </div>
       </header>
 
       {/* Content */}
