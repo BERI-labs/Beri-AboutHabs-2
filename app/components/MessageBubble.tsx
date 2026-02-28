@@ -29,7 +29,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   }
 
   return (
-    <div className="flex items-start gap-3 mb-4 animate-slide-up">
+    <div className="flex items-start gap-3 mb-6 animate-slide-up">
       {/* Beri avatar */}
       <div
         className="flex-shrink-0 w-7 h-7 overflow-hidden mt-0.5"

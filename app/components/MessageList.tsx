@@ -16,11 +16,13 @@ export function MessageList({ messages }: MessageListProps) {
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-1">
-      {messages.map((msg) => (
-        <MessageBubble key={msg.id} message={msg} />
-      ))}
-      <div ref={bottomRef} />
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-4xl mx-auto px-4 py-6 pb-28 space-y-3">
+        {messages.map((msg) => (
+          <MessageBubble key={msg.id} message={msg} />
+        ))}
+        <div ref={bottomRef} />
+      </div>
     </div>
   );
 }
