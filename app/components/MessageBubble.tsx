@@ -5,6 +5,15 @@ import remarkGfm from "remark-gfm";
 import type { Message } from "../lib/types";
 import { SourcePanel } from "./SourcePanel";
 
+/** Strip stray HTML tags the LLM sometimes injects (e.g. `<br>•`) and
+ *  convert them to proper markdown so ReactMarkdown renders them correctly. */
+function sanitiseContent(raw: string): string {
+  return raw
+    .replace(/<br\s*\/?>\s*[•·‣⁃]/g, "\n- ")   // <br>• → markdown bullet
+    .replace(/<br\s*\/?>/gi, "\n")                // lone <br> → newline
+    .replace(/&bull;/gi, "- ");                   // &bull; entity → dash
+}
+
 interface MessageBubbleProps {
   message: Message;
 }
@@ -117,7 +126,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   p: ({ children }) => <p className="mb-1">{children}</p>,
                 }}
               >
-                {message.content}
+                {sanitiseContent(message.content)}
               </ReactMarkdown>
             ) : (
               <span style={{ color: "var(--beri-text-muted)" }}>Thinking…</span>
