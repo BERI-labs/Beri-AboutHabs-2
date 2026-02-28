@@ -152,16 +152,22 @@ function renderTable(lines: string[], key: number): React.ReactNode {
 
 /** Render inline markdown: **bold** and *italic*. */
 function renderInline(text: string): React.ReactNode {
+  // Pre-escape grade asterisks like "A*", "B*" (UK grade notation) so they are
+  // never consumed by the bold/italic regex (e.g. "A*–A" or "A* in Maths").
+  const GRADE_STAR = "\x00GS\x00";
+  const preprocessed = text.replace(/([A-Ea-e])\*(?!\*)/g, `$1${GRADE_STAR}`);
+
   // Bold: allow single * within content (e.g. **A*–A**); italic: not preceded/followed by word char
-  const parts = text.split(/(\*\*(?:[^*]|\*(?!\*))+\*\*|(?<!\w)\*[^*]+\*(?!\w))/g);
+  const parts = preprocessed.split(/(\*\*(?:[^*]|\*(?!\*))+\*\*|(?<!\w)\*[^*]+\*(?!\w))/g);
   return parts.map((part, i) => {
+    const restore = (s: string) => s.replaceAll(GRADE_STAR, "*");
     if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
+      return <strong key={i}>{restore(part.slice(2, -2))}</strong>;
     }
     if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-      return <em key={i}>{part.slice(1, -1)}</em>;
+      return <em key={i}>{restore(part.slice(1, -1))}</em>;
     }
-    return part;
+    return restore(part);
   });
 }
 
