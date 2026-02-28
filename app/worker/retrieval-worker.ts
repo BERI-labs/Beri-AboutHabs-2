@@ -100,6 +100,7 @@ function cosineSim(a: number[], b: number[]): number {
 
 const BM25_WEIGHT = 0.3325;
 const VECTOR_WEIGHT = 0.6675;
+const TITLE_BOOST = 0.15;
 
 function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
   if (scored.length === 0) return new Map();
@@ -111,6 +112,16 @@ function normalizeScores(scored: { idx: number; score: number }[]): Map<number, 
     map.set(s.idx, (s.score - min) / range);
   }
   return map;
+}
+
+function titleMatchBoost(queryTerms: string[], chunkTitle: string): number {
+  const titleTerms = new Set(tokenize(chunkTitle));
+  if (titleTerms.size === 0 || queryTerms.length === 0) return 0;
+  let matches = 0;
+  for (const qt of queryTerms) {
+    if (titleTerms.has(qt)) matches++;
+  }
+  return (matches / titleTerms.size) * TITLE_BOOST;
 }
 
 async function hybridSearch(query: string, topK: number) {
@@ -127,7 +138,11 @@ async function hybridSearch(query: string, topK: number) {
   if (!hasEmbeddings) {
     // Embedder not ready — BM25 only; normalize scores to [0, 1] before returning
     const bm25Norm = normalizeScores(bm25Candidates);
-    return bm25Candidates.slice(0, topK).map((r) => ({ chunk: r.chunk, score: bm25Norm.get(r.idx) ?? 0 }));
+    return bm25Candidates.slice(0, topK).map((r) => ({
+      chunk: r.chunk,
+      score: bm25Norm.get(r.idx) ?? 0,
+      cosineSimilarity: 0,
+    }));
   }
 
   // Vector leg
@@ -139,6 +154,10 @@ async function hybridSearch(query: string, topK: number) {
     .sort((a, b) => b.score - a.score)
     .slice(0, topK * 3);
 
+  // Raw cosine similarity lookup (before normalization)
+  const rawCosine = new Map<number, number>();
+  for (const c of vectorCandidates) rawCosine.set(c.idx, c.score);
+
   // Min-max normalize both score sets
   const bm25Norm = normalizeScores(bm25Candidates);
   const vecNorm = normalizeScores(vectorCandidates);
@@ -148,12 +167,17 @@ async function hybridSearch(query: string, topK: number) {
   for (const c of bm25Candidates) allIdxs.add(c.idx);
   for (const c of vectorCandidates) allIdxs.add(c.idx);
 
-  // Weighted fusion
-  const fused: { chunk: Chunk; score: number }[] = [];
+  // Weighted fusion + title-match boost
+  const fused: { chunk: Chunk; score: number; cosineSimilarity: number }[] = [];
   for (const idx of allIdxs) {
     const bScore = bm25Norm.get(idx) ?? 0;
     const vScore = vecNorm.get(idx) ?? 0;
-    fused.push({ chunk: chunks[idx], score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore });
+    const tBoost = titleMatchBoost(queryTerms, chunks[idx].title);
+    fused.push({
+      chunk: chunks[idx],
+      score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore + tBoost,
+      cosineSimilarity: rawCosine.get(idx) ?? 0,
+    });
   }
 
   return fused.sort((a, b) => b.score - a.score).slice(0, topK);
@@ -356,7 +380,7 @@ async function _init() {
 // ── Search handler ────────────────────────────────────────────────────────────
 
 async function handleSearch(query: string, id: string) {
-  const topK = 3;
+  const topK = 4;
 
   const results = await hybridSearch(query, topK);
 
@@ -365,6 +389,7 @@ async function handleSearch(query: string, id: string) {
     .map((r) => ({
       chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,
+      cosineSimilarity: r.cosineSimilarity,
     }))
     .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
 

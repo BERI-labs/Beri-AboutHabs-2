@@ -141,6 +141,7 @@ async function buildIndex() {
           embedding,
           section: classifySection(title),
           chunkIndex: chunkIndex++,
+          url,
         });
       }
     } else if (estimatedTokens < 30 && chunks.length > 0) {

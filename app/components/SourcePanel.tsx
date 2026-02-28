@@ -150,7 +150,7 @@ export function SourcePanel({ sources }: SourcePanelProps) {
             </svg>
             <span className="font-medium truncate">{s.chunk.title}</span>
             <span className="ml-auto text-[10px] flex-shrink-0 mr-2" style={{ color: "var(--beri-text-muted)" }}>
-              {(s.score * 100).toFixed(0)}% match
+              {((s.cosineSimilarity ?? s.score) * 100).toFixed(0)}% match
             </span>
             {s.chunk.url && (
               <a
