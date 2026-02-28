@@ -1,168 +1,11 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
 import type { Message } from "../lib/types";
 import { SourcePanel } from "./SourcePanel";
 
 interface MessageBubbleProps {
   message: Message;
-}
-
-/**
- * Lightweight markdown renderer for Beri's responses.
- * Handles: headings, bold, italic, unordered/ordered lists, tables, line breaks.
- */
-function formatText(text: string): React.ReactNode {
-  const lines = text.split("\n");
-  const elements: React.ReactNode[] = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // Empty line — spacer
-    if (line.trim() === "") {
-      elements.push(<br key={elements.length} />);
-      i++;
-      continue;
-    }
-
-    // Markdown table (line starting with |)
-    if (line.trim().startsWith("|")) {
-      const tableLines: string[] = [];
-      while (i < lines.length && lines[i].trim().startsWith("|")) {
-        tableLines.push(lines[i]);
-        i++;
-      }
-      elements.push(renderTable(tableLines, elements.length));
-      continue;
-    }
-
-    // Heading: ### or ## or #
-    const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
-    if (headingMatch) {
-      const level = headingMatch[1].length;
-      const headingText = headingMatch[2];
-      const fontSize = level === 1 ? "text-base" : level === 2 ? "text-sm" : "text-sm";
-      elements.push(
-        <div key={elements.length} className={`${fontSize} font-semibold mt-2 mb-1`} style={{ color: "var(--beri-text)" }}>
-          {renderInline(headingText)}
-        </div>
-      );
-      i++;
-      continue;
-    }
-
-    // Unordered list (- item or * item)
-    if (/^\s*[-*]\s/.test(line)) {
-      const listItems: React.ReactNode[] = [];
-      while (i < lines.length && /^\s*[-*]\s/.test(lines[i])) {
-        const itemText = lines[i].replace(/^\s*[-*]\s+/, "");
-        listItems.push(<li key={listItems.length}>{renderInline(itemText)}</li>);
-        i++;
-      }
-      elements.push(
-        <ul key={elements.length} className="list-disc pl-5 my-1 space-y-0.5">
-          {listItems}
-        </ul>
-      );
-      continue;
-    }
-
-    // Ordered list (1. item)
-    if (/^\s*\d+\.\s/.test(line)) {
-      const listItems: React.ReactNode[] = [];
-      while (i < lines.length && /^\s*\d+\.\s/.test(lines[i])) {
-        const itemText = lines[i].replace(/^\s*\d+\.\s+/, "");
-        listItems.push(<li key={listItems.length}>{renderInline(itemText)}</li>);
-        i++;
-      }
-      elements.push(
-        <ol key={elements.length} className="list-decimal pl-5 my-1 space-y-0.5">
-          {listItems}
-        </ol>
-      );
-      continue;
-    }
-
-    // Regular line
-    elements.push(
-      <span key={elements.length}>
-        {renderInline(line)}
-        {i < lines.length - 1 && <br />}
-      </span>
-    );
-    i++;
-  }
-
-  return elements;
-}
-
-/** Parse a markdown table block into a <table> element. */
-function renderTable(lines: string[], key: number): React.ReactNode {
-  const parseRow = (line: string) =>
-    line
-      .split("|")
-      .slice(1, -1)
-      .map((cell) => cell.trim());
-
-  const dataRows = lines.filter(
-    (l) => !/^\|[\s\-:|]+\|$/.test(l.trim())
-  );
-
-  if (dataRows.length === 0) return null;
-
-  const header = parseRow(dataRows[0]);
-  const body = dataRows.slice(1).map(parseRow);
-
-  return (
-    <div key={key} className="overflow-x-auto my-2">
-      <table className="w-full text-xs border-collapse">
-        <thead>
-          <tr>
-            {header.map((cell, j) => (
-              <th
-                key={j}
-                className="text-left px-2 py-1.5 border-b-2 font-semibold"
-                style={{ borderColor: "var(--beri-accent-light)", color: "var(--beri-text)" }}
-              >
-                {renderInline(cell)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {body.map((row, r) => (
-            <tr key={r}>
-              {row.map((cell, c) => (
-                <td
-                  key={c}
-                  className="px-2 py-1.5 border-b"
-                  style={{ borderColor: "var(--beri-border-light)" }}
-                >
-                  {renderInline(cell)}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** Render inline markdown: **bold** and *italic*. */
-function renderInline(text: string): React.ReactNode {
-  // Bold: allow single * within content (e.g. **A*–A**); italic: not preceded/followed by word char
-  const parts = text.split(/(\*\*(?:[^*]|\*(?!\*))+\*\*|(?<!\w)\*[^*]+\*(?!\w))/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-      return <em key={i}>{part.slice(1, -1)}</em>;
-    }
-    return part;
-  });
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
@@ -215,7 +58,52 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           }}
         >
           <div className={`beri-prose ${message.isStreaming ? "beri-cursor" : ""}`}>
-            {message.content ? formatText(message.content) : (
+            {message.content ? (
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => (
+                    <div className="text-base font-semibold mt-2 mb-1" style={{ color: "var(--beri-text)" }}>{children}</div>
+                  ),
+                  h2: ({ children }) => (
+                    <div className="text-sm font-semibold mt-2 mb-1" style={{ color: "var(--beri-text)" }}>{children}</div>
+                  ),
+                  h3: ({ children }) => (
+                    <div className="text-sm font-semibold mt-2 mb-1" style={{ color: "var(--beri-text)" }}>{children}</div>
+                  ),
+                  table: ({ children }) => (
+                    <div className="overflow-x-auto my-2">
+                      <table className="w-full text-xs border-collapse">{children}</table>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead>{children}</thead>,
+                  tbody: ({ children }) => <tbody>{children}</tbody>,
+                  th: ({ children }) => (
+                    <th
+                      className="text-left px-2 py-1.5 border-b-2 font-semibold"
+                      style={{ borderColor: "var(--beri-accent-light)", color: "var(--beri-text)" }}
+                    >
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="px-2 py-1.5 border-b" style={{ borderColor: "var(--beri-border-light)" }}>
+                      {children}
+                    </td>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc pl-5 my-1 space-y-0.5">{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal pl-5 my-1 space-y-0.5">{children}</ol>
+                  ),
+                  strong: ({ children }) => <strong>{children}</strong>,
+                  em: ({ children }) => <em>{children}</em>,
+                  p: ({ children }) => <p className="mb-1">{children}</p>,
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            ) : (
               <span style={{ color: "var(--beri-text-muted)" }}>Thinking…</span>
             )}
           </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { SearchResult } from "../lib/types";
 
 interface SourcePanelProps {
@@ -117,88 +116,69 @@ function renderInline(text: string): React.ReactNode {
 }
 
 export function SourcePanel({ sources }: SourcePanelProps) {
-  const [open, setOpen] = useState(false);
-
   if (!sources || sources.length === 0) return null;
 
   // Sort by decreasing match percentage
   const sorted = [...sources].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="mt-2">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs transition-colors duration-150"
-        style={{ color: "var(--beri-accent)" }}
-        aria-expanded={open}
-      >
-        <svg
-          className={`w-3 h-3 transition-transform duration-200 ${open ? "rotate-90" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
+    <div className="mt-2 space-y-2 animate-fade-in">
+      <span className="text-xs" style={{ color: "var(--beri-accent)" }}>
+        {sources.length} source{sources.length !== 1 ? "s" : ""} cited
+      </span>
+      {sorted.map((s, i) => (
+        <details
+          key={i}
+          className="group rounded-lg border overflow-hidden"
+          style={{
+            borderColor: "var(--beri-border)",
+            background: "var(--beri-surface)",
+          }}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-        <span>
-          {sources.length} source{sources.length !== 1 ? "s" : ""} cited
-        </span>
-      </button>
-
-      {open && (
-        <div className="mt-2 space-y-2 animate-fade-in">
-          {sorted.map((s, i) => (
-            <details
-              key={i}
-              className="group rounded-lg border overflow-hidden"
-              style={{
-                borderColor: "var(--beri-border)",
-                background: "var(--beri-surface)",
-              }}
+          <summary
+            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-xs transition-colors select-none list-none"
+            style={{ color: "var(--beri-accent-hover)" }}
+          >
+            <svg
+              className="w-3 h-3 transition-transform duration-200 group-open:rotate-90 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
             >
-              <summary
-                className="flex items-center gap-2 px-3 py-2 cursor-pointer text-xs transition-colors select-none list-none"
-                style={{ color: "var(--beri-accent-hover)" }}
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="font-medium truncate">{s.chunk.title}</span>
+            <span className="ml-auto text-[10px] flex-shrink-0" style={{ color: "var(--beri-text-muted)" }}>
+              {(s.score * 100).toFixed(0)}% match
+            </span>
+          </summary>
+          <div
+            className="px-3 pb-3 pt-1 text-xs leading-relaxed border-t"
+            style={{ color: "var(--beri-text-soft)", borderColor: "var(--beri-border-light)" }}
+          >
+            {renderMarkdown(s.chunk.text)}
+            {s.chunk.url && (
+              <a
+                href={s.chunk.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                style={{
+                  color: "var(--beri-accent-hover)",
+                  background: "var(--beri-accent-light)",
+                  border: "1px solid var(--beri-accent)",
+                }}
               >
-                <svg
-                  className="w-3 h-3 transition-transform duration-200 group-open:rotate-90 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                 </svg>
-                <span className="font-medium truncate">{s.chunk.title}</span>
-                {s.chunk.url && (
-                  <a
-                    href={s.chunk.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity"
-                    title="View on school website"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
-                  </a>
-                )}
-                <span className="ml-auto text-[10px] flex-shrink-0" style={{ color: "var(--beri-text-muted)" }}>
-                  {(s.score * 100).toFixed(0)}% match
-                </span>
-              </summary>
-              <div
-                className="px-3 pb-3 pt-1 text-xs leading-relaxed border-t"
-                style={{ color: "var(--beri-text-soft)", borderColor: "var(--beri-border-light)" }}
-              >
-                {renderMarkdown(s.chunk.text)}
-              </div>
-            </details>
-          ))}
-        </div>
-      )}
+                Take me here
+              </a>
+            )}
+          </div>
+        </details>
+      ))}
     </div>
   );
 }

@@ -24,7 +24,7 @@ let docTermFreqs: { terms: Map<string, number>; length: number }[] = []; // per-
 let avgDocLength = 0;
 
 function tokenize(text: string): string[] {
-  return text.toLowerCase().replace(/[^a-z0-9'\-]+/g, " ").split(/\s+/).filter((t) => t.length > 1);
+  return text.toLowerCase().replace(/[^a-z0-9']+/g, " ").split(/\s+/).filter((t) => t.length > 1);
 }
 
 function buildBM25Index() {
@@ -98,8 +98,8 @@ function cosineSim(a: number[], b: number[]): number {
 
 // ── Hybrid search: BM25 + cosine similarity ─────────────────────────────────
 
-const BM25_WEIGHT = 0.35;
-const VECTOR_WEIGHT = 0.65;
+const BM25_WEIGHT = 0.3325;
+const VECTOR_WEIGHT = 0.6675;
 
 function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
   if (scored.length === 0) return new Map();

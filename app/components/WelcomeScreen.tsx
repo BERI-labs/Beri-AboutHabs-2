@@ -114,8 +114,8 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
 
         {/* SEO/GEO: intro paragraph explains what BERI is with natural keywords for AI engines */}
         <p
-          className="text-sm leading-relaxed mb-3"
-          style={{ color: "var(--beri-text-soft)" }}
+          className="leading-relaxed mb-3"
+          style={{ color: "var(--beri-text-soft)", fontSize: "16px" }}
         >
           Your AI guide to Haberdashers&apos; Boys&apos; School — ask me
           anything about admissions, fees, the curriculum, sport, or school
@@ -124,8 +124,8 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
 
         {/* GEO: "What is Beri?" paragraph optimised for AI summaries and answer boxes */}
         <p
-          className="text-xs leading-relaxed"
-          style={{ color: "var(--beri-text-soft)" }}
+          className="leading-relaxed"
+          style={{ color: "var(--beri-text-soft)", fontSize: "13.8px" }}
         >
           Beri is a student-built AI tool created by{" "}
           <a
@@ -142,19 +142,18 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
         </p>
       </div>
 
-      {/* Starter chips */}
+      {/* Starter questions — 2-column × 4-row grid */}
       <div
-        className="flex flex-wrap justify-center gap-2 max-w-xl mb-10"
+        className="grid grid-cols-2 gap-2 max-w-2xl w-full mb-10"
         aria-label="Suggested questions"
       >
         {STARTER_QUESTIONS.map((q) => (
           <button
             key={q}
             onClick={() => onQuestion(q)}
-            className="starter-chip px-4 py-2.5 rounded-full text-sm border bg-transparent"
+            className="starter-chip px-4 py-3 rounded-lg text-sm text-left bg-transparent"
             style={{
               color: "var(--beri-accent-hover)",
-              borderColor: "var(--beri-border)",
             }}
           >
             {q}
