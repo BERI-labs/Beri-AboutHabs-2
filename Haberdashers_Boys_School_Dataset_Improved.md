@@ -662,5 +662,3 @@ The school also operates a generous **bursary programme** so that financial circ
 **Source:** https://www.habselstree.org.uk/boys/contact-us/
 
 ---
-
-*Knowledge base compiled from official school documentation, the Habs Boys website (habselstree.org.uk/boys/), school welcome booklets, Skylight magazine (Spring & Autumn 2025), the Sports Guidebook 2025–26, the HoD Guidebook 2025–26, and official school results. Data current as of February 2026.*
