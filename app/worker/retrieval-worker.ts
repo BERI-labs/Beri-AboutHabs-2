@@ -361,6 +361,7 @@ async function handleSearch(query: string, id: string) {
   const results = await hybridSearch(query, topK);
 
   const mapped = results
+    .filter((r) => r.score > 0)
     .map((r) => ({
       chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,
