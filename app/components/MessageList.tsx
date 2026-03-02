@@ -18,9 +18,22 @@ export function MessageList({ messages }: MessageListProps) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-4xl mx-auto px-4 py-6 pb-28 space-y-3">
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
-        ))}
+        {messages.map((msg, index) => {
+          const precedingUserText =
+            msg.role === "assistant"
+              ? messages
+                  .slice(0, index)
+                  .reverse()
+                  .find((m) => m.role === "user")?.content
+              : undefined;
+          return (
+            <MessageBubble
+              key={msg.id}
+              message={msg}
+              precedingUserText={precedingUserText}
+            />
+          );
+        })}
         <div ref={bottomRef} />
       </div>
     </div>

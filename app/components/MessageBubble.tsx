@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Message } from "../lib/types";
 import { SourcePanel } from "./SourcePanel";
+import { buildReportMailto } from "../lib/report";
 
 /** Strip stray HTML tags the LLM sometimes injects (e.g. `<br>•`) and
  *  convert them to proper markdown so ReactMarkdown renders them correctly. */
@@ -16,9 +17,10 @@ function sanitiseContent(raw: string): string {
 
 interface MessageBubbleProps {
   message: Message;
+  precedingUserText?: string;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, precedingUserText }: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   if (isUser) {
@@ -137,6 +139,33 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         {/* Sources */}
         {!message.isStreaming && message.sources && message.sources.length > 0 && (
           <SourcePanel sources={message.sources} />
+        )}
+
+        {/* Report link */}
+        {!message.isStreaming && (
+          <div className="mt-1.5 flex items-center">
+            <a
+              href="#"
+              title="Opens your email client with the last Q&A pre-filled."
+              onClick={(e) => {
+                e.preventDefault();
+                const url = buildReportMailto({
+                  lastUserText: precedingUserText ?? "",
+                  lastBotText: message.content,
+                  citations: message.sources?.map((s) => ({
+                    title: s.chunk.title,
+                    url: s.chunk.url,
+                    score: s.score,
+                  })),
+                });
+                window.location.href = url;
+              }}
+              className="text-[11px] transition-colors"
+              style={{ color: "var(--beri-text-muted)" }}
+            >
+              Report this answer
+            </a>
+          </div>
         )}
       </div>
     </div>
