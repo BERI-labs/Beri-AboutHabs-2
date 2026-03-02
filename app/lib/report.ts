@@ -42,13 +42,13 @@ export function buildReportMailto({
     `--- Last user message ---`,
     lastUserText || NA,
     ``,
-    `--- Bot response ---`,
+    `--- Beri's reponse ---`,
     lastBotText || NA,
     ``,
     `--- Citations ---`,
     citationLines,
     ``,
-    `--- Additional notes (optional) ---`,
+    `--- Leave your feedback below ---`,
     ``,
   ].join("\r\n");
 
