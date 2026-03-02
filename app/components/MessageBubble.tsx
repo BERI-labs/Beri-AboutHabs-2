@@ -160,9 +160,16 @@ export function MessageBubble({ message, precedingUserText }: MessageBubbleProps
                 });
                 window.location.href = url;
               }}
-              className="text-[11px] transition-colors"
-              style={{ color: "var(--beri-text-muted)" }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors"
+              style={{
+                color: "var(--beri-accent-hover)",
+                background: "var(--beri-accent-light)",
+                border: "1px solid var(--beri-accent)",
+              }}
             >
+              <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18M3 6l9-3 9 3v8l-9 3-9-3V6z" />
+              </svg>
               Report this answer
             </a>
           </div>
