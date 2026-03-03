@@ -112,7 +112,7 @@ export function AboutBeriModal({ open, onClose }: AboutBeriModalProps) {
               style={{ color: "var(--beri-text-soft)" }}
             >
               Beri uses a bespoke hybrid search method that queries the
-              school&apos;s knowledge base, then generating a response grounded
+              school&apos;s knowledge base, then generates a response grounded
               in those sources — so answers are accurate and traceable.
             </dd>
           </div>
