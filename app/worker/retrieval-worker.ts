@@ -27,6 +27,85 @@ function tokenize(text: string): string[] {
   return text.toLowerCase().replace(/[^a-z0-9']+/g, " ").split(/\s+/).filter((t) => t.length > 1);
 }
 
+// ── Synonym bank ─────────────────────────────────────────────────────────────
+// Maps a canonical term to a set of synonyms used at query-expansion time.
+// Both directions are encoded so "costs" expands to include "fees" and vice versa.
+// All keys and values must be lowercase single tokens (matching tokenize output).
+const SYNONYM_BANK: Record<string, string[]> = {
+  // Financial
+  fees:        ["costs", "tuition", "charges", "payments", "pricing", "price"],
+  costs:       ["fees", "tuition", "charges", "payments", "price"],
+  tuition:     ["fees", "costs", "charges"],
+  charges:     ["fees", "costs", "tuition"],
+  payments:    ["fees", "costs"],
+  pricing:     ["fees", "costs"],
+  price:       ["fees", "costs"],
+  bursary:     ["bursaries", "financial", "aid", "grant", "funding", "scholarship", "support", "assistance", "award", "help"],
+  bursaries:   ["bursary", "financial", "aid", "grant", "funding", "scholarship", "support", "assistance", "award"],
+  scholarship: ["scholarships", "bursary", "bursaries", "award", "funding", "grant", "aid", "assistance"],
+  scholarships:["scholarship", "bursary", "bursaries", "award", "funding", "grant"],
+  funding:     ["bursary", "bursaries", "scholarship", "grant", "award", "financial"],
+  grant:       ["bursary", "bursaries", "scholarship", "funding", "award"],
+  award:       ["scholarship", "bursary", "grant", "funding"],
+  // Academic results / exams
+  results:     ["grades", "scores", "exams", "performance", "outcomes", "achievements", "attainment"],
+  grades:      ["results", "scores", "marks", "exams", "performance", "attainment"],
+  scores:      ["results", "grades", "marks", "performance"],
+  marks:       ["grades", "scores", "results"],
+  exams:       ["results", "grades", "tests", "assessments", "examinations", "qualifications"],
+  examinations:["exams", "tests", "assessments", "results", "grades"],
+  tests:       ["exams", "assessments", "results"],
+  assessments: ["exams", "tests", "results", "grades"],
+  attainment:  ["results", "grades", "performance", "outcomes", "achievements"],
+  performance: ["results", "grades", "scores", "attainment", "achievements"],
+  outcomes:    ["results", "grades", "performance", "attainment"],
+  achievements:["results", "grades", "attainment", "performance", "outcomes"],
+  // Admissions / entry
+  admissions:  ["entry", "enrollment", "application", "apply", "joining", "register", "registration", "join"],
+  entry:       ["admissions", "enrollment", "application", "joining", "admission"],
+  enrollment:  ["admissions", "entry", "application", "joining"],
+  application: ["admissions", "entry", "enrollment", "apply", "register"],
+  apply:       ["application", "admissions", "register", "entry", "enrollment"],
+  register:    ["registration", "application", "apply", "admissions", "entry"],
+  registration:["register", "application", "apply", "admissions", "entry"],
+  joining:     ["admissions", "entry", "enrollment", "application"],
+  // People / leadership
+  headmaster:  ["head", "principal", "headteacher", "leader", "director"],
+  head:        ["headmaster", "principal", "headteacher", "leader"],
+  principal:   ["headmaster", "head", "headteacher", "leader"],
+  headteacher: ["headmaster", "head", "principal"],
+  // School naming
+  habs:        ["haberdashers", "school", "boys"],
+  haberdashers:["habs", "school"],
+  // Sports / PE
+  sports:      ["sport", "athletics", "games", "pe", "physical", "exercise", "cricket", "rugby", "football", "tennis", "swimming"],
+  sport:       ["sports", "athletics", "games", "pe", "physical", "exercise"],
+  athletics:   ["sports", "sport", "games", "pe"],
+  games:       ["sports", "sport", "athletics", "pe"],
+  pe:          ["sports", "sport", "physical", "education", "games"],
+  // Sixth form / A-levels
+  sixthform:   ["alevel", "alevels", "sixth", "form", "advanced"],
+  alevel:      ["alevels", "sixth", "sixthform", "advanced", "level"],
+  alevels:     ["alevel", "sixth", "sixthform", "advanced"],
+  // Open days / visits
+  openday:     ["open", "day", "visit", "tour", "event"],
+  visit:       ["openday", "open", "tour", "event", "day"],
+  tour:        ["visit", "openday", "open", "event"],
+  // Contact
+  contact:     ["phone", "email", "address", "call", "reach", "telephone", "number"],
+};
+
+function expandQueryTerms(queryTerms: string[]): string[] {
+  const expanded = new Set<string>(queryTerms);
+  for (const term of queryTerms) {
+    const synonyms = SYNONYM_BANK[term];
+    if (synonyms) {
+      for (const syn of synonyms) expanded.add(syn);
+    }
+  }
+  return Array.from(expanded);
+}
+
 function buildBM25Index() {
   docFreqs = new Map();
   docTermFreqs = [];
@@ -125,10 +204,11 @@ function titleMatchBoost(queryTerms: string[], chunkTitle: string): number {
 }
 
 async function hybridSearch(query: string, topK: number) {
-  // BM25 leg — always available
+  // BM25 leg — always available; expand query terms with synonyms for better recall
   const queryTerms = tokenize(query);
+  const expandedTerms = expandQueryTerms(queryTerms);
   const bm25Candidates = chunks
-    .map((chunk, i) => ({ idx: i, chunk, score: bm25Score(queryTerms, i) }))
+    .map((chunk, i) => ({ idx: i, chunk, score: bm25Score(expandedTerms, i) }))
     .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK * 3); // over-fetch for fusion
