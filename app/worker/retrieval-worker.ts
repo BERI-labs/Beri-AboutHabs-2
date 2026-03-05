@@ -177,8 +177,8 @@ function cosineSim(a: number[], b: number[]): number {
 
 // ── Hybrid search: BM25 + cosine similarity ─────────────────────────────────
 
-const BM25_WEIGHT = 0.3325;
-const VECTOR_WEIGHT = 0.6675;
+const BM25_WEIGHT = 0.2;
+const VECTOR_WEIGHT = 0.8;
 const TITLE_BOOST = 0.15;
 
 function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
