@@ -27,6 +27,64 @@ function tokenize(text: string): string[] {
   return text.toLowerCase().replace(/[^a-z0-9']+/g, " ").split(/\s+/).filter((t) => t.length > 1);
 }
 
+// ── Synonym expansion ─────────────────────────────────────────────────────────
+
+const SYNONYM_MAP: Record<string, string[]> = {
+  cost:      ["fees", "tuition", "price", "pricing"],
+  costs:     ["fees", "tuition", "price", "pricing"],
+  price:     ["fees", "tuition", "cost"],
+  prices:    ["fees", "tuition", "cost"],
+  pricing:   ["fees", "tuition", "cost"],
+  afford:    ["bursary", "bursaries", "financial", "assistance"],
+  affordable:["bursary", "fee", "assistance"],
+  cheap:     ["bursary", "fee", "assistance", "affordable"],
+  money:     ["fees", "financial", "bursary", "cost"],
+  pay:       ["fees", "payment", "tuition"],
+  paying:    ["fees", "payment", "tuition"],
+  payment:   ["fees", "tuition", "cost"],
+  scholarship:["bursary", "bursaries", "financial", "assistance", "award"],
+  scholarships:["bursary", "bursaries", "financial", "assistance"],
+  help:      ["assistance", "support", "bursary"],
+  apply:     ["application", "admissions", "register", "entry"],
+  applying:  ["application", "admissions", "register", "entry"],
+  joining:   ["admissions", "entry", "application", "enrol"],
+  enrol:     ["admissions", "entry", "application", "joining"],
+  enroll:    ["admissions", "entry", "application", "joining"],
+  subjects:  ["curriculum", "courses", "options", "gcse", "a-level"],
+  subject:   ["curriculum", "courses", "options", "gcse", "a-level"],
+  sport:     ["sports", "co-curricular", "activities", "facilities"],
+  sports:    ["sport", "co-curricular", "activities", "facilities"],
+  uniform:   ["dress", "clothing", "kit"],
+  teacher:   ["staff", "faculty", "master"],
+  teachers:  ["staff", "faculty", "masters"],
+  grades:    ["results", "gcse", "a-level", "performance", "attainment"],
+  grade:     ["results", "gcse", "a-level", "performance"],
+  results:   ["grades", "gcse", "a-level", "performance", "attainment"],
+  exam:      ["gcse", "a-level", "assessment", "test"],
+  exams:     ["gcse", "a-level", "assessment", "tests"],
+  club:      ["co-curricular", "activities", "society", "sport"],
+  clubs:     ["co-curricular", "activities", "societies", "sports"],
+  trip:      ["visits", "travel", "expedition", "tour"],
+  trips:     ["visits", "travel", "expeditions", "tours"],
+  contact:   ["address", "phone", "email", "telephone"],
+  location:  ["address", "directions", "map", "elstree"],
+  bus:       ["transport", "travel", "coach", "minibus"],
+  transport: ["bus", "travel", "coach", "minibus"],
+};
+
+function expandQuery(query: string): string {
+  const terms = tokenize(query);
+  const extra = new Set<string>();
+  for (const term of terms) {
+    const synonyms = SYNONYM_MAP[term];
+    if (synonyms) {
+      for (const s of synonyms) extra.add(s);
+    }
+  }
+  if (extra.size === 0) return query;
+  return query + " " + [...extra].join(" ");
+}
+
 function buildBM25Index() {
   docFreqs = new Map();
   docTermFreqs = [];
@@ -125,8 +183,10 @@ function titleMatchBoost(queryTerms: string[], chunkTitle: string): number {
 }
 
 async function hybridSearch(query: string, topK: number) {
+  const expandedQuery = expandQuery(query);
+
   // BM25 leg — always available
-  const queryTerms = tokenize(query);
+  const queryTerms = tokenize(expandedQuery);
   const bm25Candidates = chunks
     .map((chunk, i) => ({ idx: i, chunk, score: bm25Score(queryTerms, i) }))
     .filter((r) => r.score > 0)
@@ -142,7 +202,7 @@ async function hybridSearch(query: string, topK: number) {
   }
 
   // Vector leg
-  const output = await embedder(query, { pooling: "mean", normalize: true });
+  const output = await embedder(expandedQuery, { pooling: "mean", normalize: true });
   const queryVec = Array.from(output.data as Float32Array) as number[];
 
   const vectorCandidates = chunks
