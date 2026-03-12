@@ -380,8 +380,7 @@ async function handleSearch(query: string, id: string) {
     .map((r) => ({
       chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,
-    }))
-    .sort((a, b) => a.chunk.chunkIndex - b.chunk.chunkIndex);
+    }));
 
   self.postMessage({ type: "search-results", id, results: mapped });
 }
