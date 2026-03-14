@@ -38,13 +38,17 @@ const SYNONYM_MAP: Record<string, string[]> = {
   afford:    ["bursary", "bursaries", "financial", "assistance"],
   affordable:["bursary", "fee", "assistance"],
   cheap:     ["bursary", "fee", "assistance", "affordable"],
-  money:     ["fees", "financial", "bursary", "cost"],
+  money:     ["fees", "financial", "bursary", "bursaries", "cost"],
   pay:       ["fees", "payment", "tuition"],
   paying:    ["fees", "payment", "tuition"],
   payment:   ["fees", "tuition", "cost"],
+  financial: ["bursary", "bursaries", "fees", "assistance", "funding"],
+  funding:   ["bursary", "bursaries", "financial", "assistance"],
+  bursary:   ["bursaries", "financial", "assistance", "funding", "award"],
+  bursaries: ["bursary", "financial", "assistance", "funding"],
   scholarship:["bursary", "bursaries", "financial", "assistance", "award"],
   scholarships:["bursary", "bursaries", "financial", "assistance"],
-  help:      ["assistance", "support", "bursary"],
+  help:      ["assistance", "support", "bursary", "bursaries"],
   apply:     ["application", "admissions", "register", "entry"],
   applying:  ["application", "admissions", "register", "entry"],
   joining:   ["admissions", "entry", "application", "enrol"],
@@ -159,6 +163,37 @@ function cosineSim(a: number[], b: number[]): number {
 const BM25_WEIGHT = 0.3325;
 const VECTOR_WEIGHT = 0.6675;
 const TITLE_BOOST = 0.15;
+const SECTION_BOOST = 0.1;
+
+// Terms that signal each topic area — used to boost chunks from the matching section
+const SECTION_SIGNALS: Record<string, Set<string>> = {
+  Financial: new Set([
+    "financial", "finance", "fee", "fees", "tuition", "cost", "costs", "price", "prices",
+    "pay", "paying", "payment", "afford", "affordable", "bursary", "bursaries", "funding",
+    "scholarship", "scholarships", "money", "cheap", "assistance", "award",
+  ]),
+  Admissions: new Set([
+    "apply", "applying", "application", "admissions", "enrol", "enroll", "entry",
+    "joining", "register", "admission", "intake", "open", "day",
+  ]),
+  Academic: new Set([
+    "subjects", "subject", "curriculum", "gcse", "a-level", "diploma", "academic",
+    "exam", "exams", "grades", "grade", "results", "courses", "course", "sixth",
+  ]),
+  "Co-Curricular": new Set([
+    "sport", "sports", "club", "clubs", "activities", "trip", "trips", "co-curricular",
+    "music", "drama", "art", "society", "societies",
+  ]),
+};
+
+function sectionBoost(queryTerms: string[], chunkSection: string): number {
+  const signals = SECTION_SIGNALS[chunkSection];
+  if (!signals) return 0;
+  for (const term of queryTerms) {
+    if (signals.has(term)) return SECTION_BOOST;
+  }
+  return 0;
+}
 
 function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
   if (scored.length === 0) return new Map();
@@ -179,7 +214,9 @@ function titleMatchBoost(queryTerms: string[], chunkTitle: string): number {
   for (const qt of queryTerms) {
     if (titleTerms.has(qt)) matches++;
   }
-  return (matches / titleTerms.size) * TITLE_BOOST;
+  // Normalise by query length so longer, more descriptive titles aren't
+  // penalised relative to short ones that happen to match a single term.
+  return (matches / queryTerms.length) * TITLE_BOOST;
 }
 
 async function hybridSearch(query: string, topK: number) {
@@ -198,7 +235,10 @@ async function hybridSearch(query: string, topK: number) {
   if (!hasEmbeddings) {
     // Embedder not ready — BM25 only; normalize scores to [0, 1] before returning
     const bm25Norm = normalizeScores(bm25Candidates);
-    return bm25Candidates.slice(0, topK).map((r) => ({ chunk: r.chunk, score: bm25Norm.get(r.idx) ?? 0 }));
+    return bm25Candidates.slice(0, topK).map((r) => ({
+      chunk: r.chunk,
+      score: (bm25Norm.get(r.idx) ?? 0) + sectionBoost(queryTerms, r.chunk.section),
+    }));
   }
 
   // Vector leg
@@ -219,15 +259,16 @@ async function hybridSearch(query: string, topK: number) {
   for (const c of bm25Candidates) allIdxs.add(c.idx);
   for (const c of vectorCandidates) allIdxs.add(c.idx);
 
-  // Weighted fusion + title-match boost
+  // Weighted fusion + title-match boost + section boost
   const fused: { chunk: Chunk; score: number }[] = [];
   for (const idx of allIdxs) {
     const bScore = bm25Norm.get(idx) ?? 0;
     const vScore = vecNorm.get(idx) ?? 0;
     const tBoost = titleMatchBoost(queryTerms, chunks[idx].title);
+    const sBoost = sectionBoost(queryTerms, chunks[idx].section);
     fused.push({
       chunk: chunks[idx],
-      score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore + tBoost,
+      score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore + tBoost + sBoost,
     });
   }
 
