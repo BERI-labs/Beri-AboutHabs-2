@@ -35,16 +35,19 @@ const SYNONYM_MAP: Record<string, string[]> = {
   price:     ["fees", "tuition", "cost"],
   prices:    ["fees", "tuition", "cost"],
   pricing:   ["fees", "tuition", "cost"],
-  afford:    ["bursary", "bursaries", "financial", "assistance"],
-  affordable:["bursary", "fee", "assistance"],
-  cheap:     ["bursary", "fee", "assistance", "affordable"],
-  money:     ["fees", "financial", "bursary", "cost"],
+  afford:    ["bursary", "bursaries", "means-tested"],
+  affordable:["bursary", "fee", "means-tested"],
+  cheap:     ["bursary", "fee", "means-tested"],
+  money:     ["fees", "cost", "payment"],
   pay:       ["fees", "payment", "tuition"],
   paying:    ["fees", "payment", "tuition"],
   payment:   ["fees", "tuition", "cost"],
-  scholarship:["bursary", "bursaries", "financial", "assistance", "award"],
-  scholarships:["bursary", "bursaries", "financial", "assistance"],
-  help:      ["assistance", "support", "bursary"],
+  scholarship:["award", "merit", "scholar"],
+  scholarships:["awards", "merit", "scholars"],
+  bursary:   ["means-tested", "financial", "fee-assistance"],
+  bursaries: ["means-tested", "financial", "fee-assistance"],
+  financial: ["bursary", "bursaries", "fees", "means-tested"],
+  help:      ["bursary", "fee-assistance"],
   apply:     ["application", "admissions", "register", "entry"],
   applying:  ["application", "admissions", "register", "entry"],
   joining:   ["admissions", "entry", "application", "enrol"],
@@ -158,7 +161,8 @@ function cosineSim(a: number[], b: number[]): number {
 
 const BM25_WEIGHT = 0.3325;
 const VECTOR_WEIGHT = 0.6675;
-const TITLE_BOOST = 0.15;
+const TITLE_BOOST = 0.22;
+const MIN_SCORE_THRESHOLD = 0.10;
 
 function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
   if (scored.length === 0) return new Map();
@@ -320,7 +324,7 @@ function parseMarkdown(markdown: string): Chunk[] {
           url,
         });
       }
-    } else if (estimatedTokens < 30 && result.length > 0) {
+    } else if (estimatedTokens < 80 && result.length > 0) {
       result[result.length - 1].text += "\n\n" + text;
     } else {
       result.push({
@@ -436,7 +440,7 @@ async function handleSearch(query: string, id: string) {
   const results = await hybridSearch(query, topK);
 
   const mapped = results
-    .filter((r) => r.score > 0)
+    .filter((r) => r.score >= MIN_SCORE_THRESHOLD)
     .map((r) => ({
       chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,

@@ -6,7 +6,7 @@
 
 A warm welcome to Haberdashers' Boys' School (Habs Boys). We are an academically ambitious school that takes great pride in our students' achievements. Our purpose is to ensure that every student who comes through our school is empowered to make a profound impact in the world. We foster a culture of scholarship and intellectual curiosity, encouraging our students to develop a deep love of learning and genuine passion for their subjects, while developing their ability to think critically and independently.
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/about-us/welcome-from-our-headmaster/
 
 ---
 
@@ -16,7 +16,7 @@ Haberdashers' Boys' School (Habs Boys) is an independent day school for boys age
 
 The school educates around 1,450 pupils, including approximately 360 in the Prep School. The school was recently named **Independent School of the Year 2025 (overall winner)** and **Independent School of the Year for Outstanding Educational Partnerships**. It has also received fantastic ratings from *The Telegraph* and *The Good Schools Guide*, being named among the Best Value Private Schools 2025. The school motto is "Together, boundless."
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/about-us/
 
 ---
 
@@ -26,7 +26,7 @@ Founded in 1690 by Royal Charter using a bequest from Robert Aske to the Worship
 
 In 2021, Robert Aske's name was dropped from the school following the discovery of his links with the Royal African Company and the slave trade. The motto was changed from "Serve and Obey" to "Together, boundless." The Hinton and Taylor buildings, comprising 46 classrooms, academic offices, and a drama studio, were completed in 2022.
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/about-us/our-history/
 
 ---
 
@@ -40,7 +40,7 @@ In 2021, Robert Aske's name was dropped from the school following the discovery 
 | **Senior School (Upper)** | Years 9–11 | 13–16 | Preparation for GCSEs. Increased independence, leadership opportunities, and academic rigour. |
 | **Sixth Form** | Years 12–13 | 16–18 | Co-taught A-Level classes with Habs Girls. Preparation for leading universities in the UK and abroad. |
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/about-us/
 
 ---
 
@@ -77,7 +77,7 @@ The school follows a 10-year "Profound Impact" strategy (published September 202
 
 Part of the Haberdashers' Company and Schools. Member of ISI (Independent Schools Inspectorate), HMC (Headmasters' and Headmistresses' Conference), ISC (Independent Schools Council), GSA, IAPS, ISBA, AGBIS. Two schools have recently joined the Haberdashers' Elstree family: Lochinver House School (from September 2025), and St Martin's School, Northwood (joining from April 2026).
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/about-us/
 
 ---
 
@@ -145,7 +145,7 @@ Assemblies are a cornerstone of the Habs community, providing a space for reflec
 - **Religious and Cultural Assemblies:** Recognising our diverse community, we hold dedicated assemblies and celebrations for various faiths and cultures. Recent examples include a special Iftar celebration for Ramadan, Lunar New Year festivities, and Holocaust Memorial Day observances.
 - **Values-Driven Reflection:** Assemblies regularly focus on our core values (Ambition, Courage, Curiosity, Community).
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/senior/life-in-our-senior-school/
 
 ---
 
@@ -289,6 +289,8 @@ VAT at 20% applies to: fees, devices, Prep lunch (included in fees), music lesso
 
 Device rental: £125 per term (Years 7–12).
 
+**Senior School lunch:** £5.25 per day (Years 7 to Upper Sixth), paid via a ParentPay account that parents top up regularly. ParentPay also allows parents to see what their child has been buying. Pre-Prep and Prep lunches are included in the fees.
+
 **Music lessons (including VAT):** Individual lessons £373 per term, Group lessons £228 per term, Group Aural/Theory £120 per term, Instrument hire £51 per term.
 
 **Available instruments:** Bassoon, Cello, Clarinet, Double Bass, Drums, Euphonium, Flute, French Horn, Guitar (Classical, Electric, Jazz), Harmonium, Oboe, Organ, Piano, Saxophone, Tabla, Trombone, Trumpet, Tuba, Viola, Violin, Voice, Dhol, Dholak.
@@ -312,7 +314,15 @@ Contact: feesboys@habselstree.org.uk
 
 ## Bursaries
 
-Available for 11+, 13+, and 16+ entry. Means-tested financial support for families who cannot afford full fees. A place must be offered first based on academic merit. Requires a confidential income statement. Can be combined with scholarships.
+Means-tested financial support for families who cannot afford full fees. Available for 11+, 13+, and 16+ entry. A place must be offered first based on academic merit. Requires a confidential income statement. Can be combined with scholarships. Approximately 10% of students receive bursary support — around 160 Senior School students attend Habs each year with a bursary, and they continue to receive support throughout their time at the school for as long as they need it.
+
+**Eligibility and income thresholds:** Families with total household gross income below £50,000 are likely to qualify for a free school place. Households with total gross income of approximately £115,000 or more are not eligible for bursary support. Between these figures, contributions towards fees are on a sliding scale.
+
+**Award levels:** Some bursaries cover 100% of school fees (a free place), while others contribute between 50% and 95% towards the cost. Bursary students are also eligible for proportional support towards coach travel, lunches, and educational trips, plus free music lessons on one instrument. Students awarded a free place usually also receive a £400 contribution towards uniform, a device, coach travel, lunches, and academic costs. VAT is applied only to the amount paid by parents.
+
+**Bright Futures:** A donor-supported bursary scheme for students of Black African or Caribbean heritage, aiming to increase representation in higher education.
+
+**Annual reassessment:** Every bursary is reassessed annually. If circumstances change and a family would no longer qualify, the bursary may be withdrawn.
 
 Bursary application deadlines: 11+ entry: Friday 21 November 2025. 13+ entry: Friday 28 November 2025. 16+ entry: Tuesday 4 November 2025.
 
@@ -673,7 +683,7 @@ Students compete at district, county, and national level. Performances at StoneX
 
 Making a difference is core to our ethos. Students actively volunteer in the local community. Recent charity initiatives include a netball match raising over £1,300 for Mencap, the highly successful Habs Giving Day, and a charity football match (Staff vs. Dads) organised by the Habs Boys' Parents' Guild.
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/senior/beyond-the-classroom/
 
 ---
 
@@ -681,7 +691,7 @@ Making a difference is core to our ethos. Students actively volunteer in the loc
 
 Habs won the Independent School of the Year award for Outstanding Educational Partnerships. We regularly host joint events, share resources, and run initiatives like the Habs Bridge Schools Cup, fostering mutual growth and opportunity across the educational sector.
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/about-us/partnerships/
 
 ---
 
@@ -689,7 +699,7 @@ Habs won the Independent School of the Year award for Outstanding Educational Pa
 
 We strongly believe that education is a partnership between the school, the student, and the parents. The Habs Boys' Parents' Guild is highly active, organising social events, quiz nights, and comedy nights, while raising funds for school extras and local charities. The school communicates Guild messages via established class/House WhatsApp groups.
 
-**Source:** https://www.habselstree.org.uk/boys/
+**Source:** https://www.habselstree.org.uk/boys/our-community/parents-guild/
 
 ---
 
@@ -826,14 +836,6 @@ The Senior School and Sixth Form follow the same timetable structure:
 | 4.15pm | Coaches depart for students not involved in after-school activities |
 
 **Source:** https://www.habselstree.org.uk/boys/sixth-form/life-in-our-sixth-form/
-
----
-
-## Senior School Lunch — ParentPay
-
-In the Senior School (Years 7 to Upper Sixth), hot lunches are charged at £5.25 per day and paid via a ParentPay account. Parents should top up the account regularly. ParentPay also allows parents to see what their child has been buying. In the Pre-Prep and Prep schools, lunches are included in the fees.
-
-**Source:** https://www.habselstree.org.uk/boys/admissions/fees/
 
 ---
 

@@ -144,7 +144,7 @@ async function buildIndex() {
           url,
         });
       }
-    } else if (estimatedTokens < 30 && chunks.length > 0) {
+    } else if (estimatedTokens < 80 && chunks.length > 0) {
       // Merge into previous chunk
       const prev = chunks[chunks.length - 1];
       prev.text += "\n\n" + text;
