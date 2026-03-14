@@ -164,6 +164,9 @@ const BM25_WEIGHT = 0.3325;
 const VECTOR_WEIGHT = 0.6675;
 const TITLE_BOOST = 0.15;
 const SECTION_BOOST = 0.1;
+// Maximum score achievable: used to express results as absolute percentages
+// rather than min-max relative ones, so displayed % reflects true relevance.
+const MAX_FUSED_SCORE = BM25_WEIGHT + VECTOR_WEIGHT + TITLE_BOOST + SECTION_BOOST; // 1.25
 
 // Terms that signal each topic area — used to boost chunks from the matching section
 const SECTION_SIGNALS: Record<string, Set<string>> = {
@@ -195,17 +198,6 @@ function sectionBoost(queryTerms: string[], chunkSection: string): number {
   return 0;
 }
 
-function normalizeScores(scored: { idx: number; score: number }[]): Map<number, number> {
-  if (scored.length === 0) return new Map();
-  const max = scored[0].score; // already sorted descending
-  const min = scored[scored.length - 1].score;
-  const range = max - min || 1;
-  const map = new Map<number, number>();
-  for (const s of scored) {
-    map.set(s.idx, (s.score - min) / range);
-  }
-  return map;
-}
 
 function titleMatchBoost(queryTerms: string[], chunkTitle: string): number {
   const titleTerms = new Set(tokenize(chunkTitle));
@@ -232,16 +224,20 @@ async function hybridSearch(query: string, topK: number) {
 
   const hasEmbeddings = embedderReady && embedder && chunks.length > 0 && chunks[0].embedding.length > 0;
 
+  // Normalise BM25 scores to [0, 1] against the top raw score so that
+  // the absolute magnitude is preserved across different queries.
+  const bm25Max = bm25Candidates.length > 0 ? bm25Candidates[0].score : 1;
+  const bm25NormMap = new Map(bm25Candidates.map((r) => [r.idx, r.score / bm25Max]));
+
   if (!hasEmbeddings) {
-    // Embedder not ready — BM25 only; normalize scores to [0, 1] before returning
-    const bm25Norm = normalizeScores(bm25Candidates);
+    // Embedder not ready — BM25 only
     return bm25Candidates.slice(0, topK).map((r) => ({
       chunk: r.chunk,
-      score: (bm25Norm.get(r.idx) ?? 0) + sectionBoost(queryTerms, r.chunk.section),
+      score: ((bm25NormMap.get(r.idx) ?? 0) * BM25_WEIGHT + sectionBoost(queryTerms, r.chunk.section)) / MAX_FUSED_SCORE,
     }));
   }
 
-  // Vector leg
+  // Vector leg — cosine similarity of L2-normalised vectors is already in [0, 1]
   const output = await embedder(expandedQuery, { pooling: "mean", normalize: true });
   const queryVec = Array.from(output.data as Float32Array) as number[];
 
@@ -250,25 +246,24 @@ async function hybridSearch(query: string, topK: number) {
     .sort((a, b) => b.score - a.score)
     .slice(0, topK * 3);
 
-  // Min-max normalize both score sets
-  const bm25Norm = normalizeScores(bm25Candidates);
-  const vecNorm = normalizeScores(vectorCandidates);
+  const vecNormMap = new Map(vectorCandidates.map((r) => [r.idx, r.score]));
 
   // Merge all candidate indices
   const allIdxs = new Set<number>();
   for (const c of bm25Candidates) allIdxs.add(c.idx);
   for (const c of vectorCandidates) allIdxs.add(c.idx);
 
-  // Weighted fusion + title-match boost + section boost
+  // Weighted fusion + title-match boost + section boost, divided by the
+  // theoretical maximum so the returned score is an absolute [0, 1] value.
   const fused: { chunk: Chunk; score: number }[] = [];
   for (const idx of allIdxs) {
-    const bScore = bm25Norm.get(idx) ?? 0;
-    const vScore = vecNorm.get(idx) ?? 0;
+    const bScore = bm25NormMap.get(idx) ?? 0;
+    const vScore = vecNormMap.get(idx) ?? 0;
     const tBoost = titleMatchBoost(queryTerms, chunks[idx].title);
     const sBoost = sectionBoost(queryTerms, chunks[idx].section);
     fused.push({
       chunk: chunks[idx],
-      score: BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore + tBoost + sBoost,
+      score: (BM25_WEIGHT * bScore + VECTOR_WEIGHT * vScore + tBoost + sBoost) / MAX_FUSED_SCORE,
     });
   }
 
