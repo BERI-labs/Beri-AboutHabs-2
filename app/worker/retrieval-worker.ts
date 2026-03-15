@@ -44,11 +44,10 @@ const SYNONYM_MAP: Record<string, string[]> = {
   payment:   ["fees", "tuition", "cost"],
   financial: ["bursary", "bursaries", "fees", "assistance", "funding"],
   funding:   ["bursary", "bursaries", "financial", "assistance"],
-  bursary:   ["bursaries", "financial", "assistance", "funding", "award"],
-  bursaries: ["bursary", "financial", "assistance", "funding"],
-  scholarship:["bursary", "bursaries", "financial", "assistance", "award"],
-  scholarships:["bursary", "bursaries", "financial", "assistance"],
-  help:      ["assistance", "support", "bursary", "bursaries"],
+  bursary:   ["financial", "means-tested", "assistance"],
+  bursaries: ["financial", "means-tested", "assistance"],
+  scholarship:["award", "merit"],
+  scholarships:["award", "merit"],
   apply:     ["application", "admissions", "register", "entry"],
   applying:  ["application", "admissions", "register", "entry"],
   joining:   ["admissions", "entry", "application", "enrol"],
@@ -162,11 +161,12 @@ function cosineSim(a: number[], b: number[]): number {
 
 const BM25_WEIGHT = 0.3325;
 const VECTOR_WEIGHT = 0.6675;
-const TITLE_BOOST = 0.15;
+const TITLE_BOOST = 0.22;
 const SECTION_BOOST = 0.1;
 // Maximum score achievable: used to express results as absolute percentages
 // rather than min-max relative ones, so displayed % reflects true relevance.
-const MAX_FUSED_SCORE = BM25_WEIGHT + VECTOR_WEIGHT + TITLE_BOOST + SECTION_BOOST; // 1.25
+const MIN_SCORE_THRESHOLD = 0.10;
+const MAX_FUSED_SCORE = BM25_WEIGHT + VECTOR_WEIGHT + TITLE_BOOST + SECTION_BOOST; // 1.32
 
 // Terms that signal each topic area — used to boost chunks from the matching section
 const SECTION_SIGNALS: Record<string, Set<string>> = {
@@ -472,7 +472,7 @@ async function handleSearch(query: string, id: string) {
   const results = await hybridSearch(query, topK);
 
   const mapped = results
-    .filter((r) => r.score > 0)
+    .filter((r) => r.score > MIN_SCORE_THRESHOLD)
     .map((r) => ({
       chunk: { title: r.chunk.title, text: r.chunk.text, chunkIndex: r.chunk.chunkIndex, url: r.chunk.url },
       score: r.score,
