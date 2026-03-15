@@ -165,7 +165,7 @@ const TITLE_BOOST = 0.22;
 const SECTION_BOOST = 0.1;
 // Maximum score achievable: used to express results as absolute percentages
 // rather than min-max relative ones, so displayed % reflects true relevance.
-const MIN_SCORE_THRESHOLD = 0.10;
+const MIN_SCORE_THRESHOLD = 0.05;
 const MAX_FUSED_SCORE = BM25_WEIGHT + VECTOR_WEIGHT + TITLE_BOOST + SECTION_BOOST; // 1.32
 
 // Terms that signal each topic area — used to boost chunks from the matching section
