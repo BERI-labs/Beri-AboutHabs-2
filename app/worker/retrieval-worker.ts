@@ -23,8 +23,36 @@ let docFreqs: Map<string, number> = new Map(); // term → number of docs contai
 let docTermFreqs: { terms: Map<string, number>; length: number }[] = []; // per-chunk
 let avgDocLength = 0;
 
+// Compound terms that must survive tokenisation as single tokens
+const COMPOUND_TERMS: Record<string, string> = {
+  "a-level": "a-level",
+  "a-levels": "a-level",
+  "a level": "a-level",
+  "a levels": "a-level",
+  "co-curricular": "co-curricular",
+  "co curricular": "co-curricular",
+  "sixth form": "sixth-form",
+  "sixth-form": "sixth-form",
+};
+
 function tokenize(text: string): string[] {
-  return text.toLowerCase().replace(/[^a-z0-9']+/g, " ").split(/\s+/).filter((t) => t.length > 1);
+  let lower = text.toLowerCase();
+  // Replace compound terms with placeholder tokens before splitting
+  const preserved: string[] = [];
+  for (const [pattern, token] of Object.entries(COMPOUND_TERMS)) {
+    const idx = lower.indexOf(pattern);
+    if (idx !== -1) {
+      const placeholder = `__compound${preserved.length}__`;
+      preserved.push(token);
+      lower = lower.replace(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), placeholder);
+    }
+  }
+  const tokens = lower.replace(/[^a-z0-9_']+/g, " ").split(/\s+/).filter((t) => t.length > 1);
+  // Restore compound tokens
+  return tokens.map(t => {
+    const match = t.match(/^__compound(\d+)__$/);
+    return match ? preserved[Number(match[1])] : t;
+  });
 }
 
 // ── Synonym expansion ─────────────────────────────────────────────────────────
@@ -60,6 +88,8 @@ const SYNONYM_MAP: Record<string, string[]> = {
   uniform:   ["dress", "clothing", "kit"],
   teacher:   ["staff", "faculty", "master"],
   teachers:  ["staff", "faculty", "masters"],
+  "a-level": ["results", "grades", "gcse", "exam", "performance", "attainment"],
+  level:     ["a-level", "results", "grades", "exam"],
   grades:    ["results", "gcse", "a-level", "performance", "attainment"],
   grade:     ["results", "gcse", "a-level", "performance"],
   results:   ["grades", "gcse", "a-level", "performance", "attainment"],
