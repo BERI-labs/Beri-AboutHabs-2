@@ -9,7 +9,7 @@ const DEBUG_SCROLL = false;
 const STARTER_QUESTIONS = [
   "What are the school fees for Senior School?",
   "When is the 11+ registration deadline?",
-  "What GCSE grades do I need for A-Level Physics?",
+  "Does Habs offer Scholarships?",
   "Who is the Headmaster?",
   "What were the 2025 A-Level results?",
   "How do I get financial help?",
@@ -141,6 +141,27 @@ export function WelcomeScreen({ onQuestion }: WelcomeScreenProps) {
           cited, accurate answers from the school knowledge base.
         </p>
       </div>
+
+      {/* Featured question — full-width blue bar */}
+      <button
+        onClick={() => onQuestion("Give me an in-depth overview of Habs")}
+        className="max-w-2xl w-full mb-3 px-4 py-3 rounded-lg text-sm font-medium text-white text-center"
+        style={{
+          background: "var(--beri-accent)",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "var(--beri-accent-hover)";
+          e.currentTarget.style.transform = "translateY(-1px)";
+          e.currentTarget.style.boxShadow = "0 4px 12px var(--beri-shadow)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "var(--beri-accent)";
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
+      >
+        Give me an in-depth overview of Habs
+      </button>
 
       {/* Starter questions — 2-column × 4-row grid */}
       <div

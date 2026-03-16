@@ -970,7 +970,7 @@ That said, I'm not infallible! For anything time-sensitive or critical — like 
 
 ---
 
-## 33. Contact Details
+## Contact Details
 
 **School address:**
 Haberdashers' Boys' School
