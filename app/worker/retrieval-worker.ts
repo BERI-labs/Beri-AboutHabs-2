@@ -19,6 +19,29 @@ let chunks: Chunk[] = [];
 const BM25_K1 = 1.2;
 const BM25_B = 0.75;
 
+// Stop words stripped from *queries* before BM25 scoring so that ultra-common
+// words like "what" or "is" don't inflate scores for irrelevant chunks.
+// Only applied to queries, NOT to the document index (we still want IDF to
+// reflect true corpus frequency).
+const STOP_WORDS = new Set([
+  "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
+  "do", "does", "did", "have", "has", "had", "having",
+  "i", "me", "my", "we", "our", "you", "your",
+  "it", "its", "he", "she", "they", "them", "their",
+  "this", "that", "these", "those",
+  "what", "which", "who", "whom", "where", "when", "why", "how",
+  "if", "or", "and", "but", "not", "no", "nor",
+  "in", "on", "at", "to", "for", "of", "by", "with", "from", "about",
+  "can", "could", "will", "would", "shall", "should", "may", "might",
+  "so", "than", "too", "very", "just",
+]);
+
+/** Remove stop words from query tokens — preserves all tokens if every token is a stop word. */
+function removeStopWords(tokens: string[]): string[] {
+  const filtered = tokens.filter((t) => !STOP_WORDS.has(t));
+  return filtered.length > 0 ? filtered : tokens;
+}
+
 let docFreqs: Map<string, number> = new Map(); // term → number of docs containing it
 let docTermFreqs: { terms: Map<string, number>; length: number }[] = []; // per-chunk
 let avgDocLength = 0;
@@ -162,7 +185,7 @@ function bm25Score(queryTerms: string[], docIdx: number): number {
 }
 
 function bm25Search(query: string, topK: number): { chunk: Chunk; score: number }[] {
-  const queryTerms = tokenize(query);
+  const queryTerms = removeStopWords(tokenize(query));
   if (queryTerms.length === 0) return [];
 
   const scored = chunks.map((chunk, i) => ({ chunk, score: bm25Score(queryTerms, i) }));
@@ -245,7 +268,7 @@ async function hybridSearch(query: string, topK: number) {
   const expandedQuery = expandQuery(query);
 
   // BM25 leg — always available
-  const queryTerms = tokenize(expandedQuery);
+  const queryTerms = removeStopWords(tokenize(expandedQuery));
   const bm25Candidates = chunks
     .map((chunk, i) => ({ idx: i, chunk, score: bm25Score(queryTerms, i) }))
     .filter((r) => r.score > 0)
