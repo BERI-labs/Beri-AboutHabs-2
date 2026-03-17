@@ -126,6 +126,9 @@ const SYNONYM_MAP: Record<string, string[]> = {
   location:  ["address", "directions", "map", "elstree"],
   bus:       ["transport", "travel", "coach", "minibus"],
   transport: ["bus", "travel", "coach", "minibus"],
+  uni:       ["university", "universities"],
+  university:["uni"],
+  universities:["uni"],
 };
 
 function expandQuery(query: string): string {
