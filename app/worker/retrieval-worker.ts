@@ -129,6 +129,15 @@ const SYNONYM_MAP: Record<string, string[]> = {
   uni:       ["university", "universities"],
   university:["uni"],
   universities:["uni"],
+  date:      ["deadline", "deadlines", "registration", "timeline", "calendar"],
+  dates:     ["deadline", "deadlines", "registration", "timeline", "calendar"],
+  deadline:  ["date", "dates", "registration", "timeline"],
+  deadlines: ["date", "dates", "registration", "timeline"],
+  when:      ["date", "dates", "deadline", "timeline"],
+  registration:["admissions", "entry", "application", "deadline"],
+  register:  ["admissions", "entry", "application", "registration"],
+  entry:     ["admissions", "application", "joining"],
+  admissions:["entry", "application", "joining", "apply"],
 };
 
 function expandQuery(query: string): string {
@@ -233,7 +242,8 @@ const SECTION_SIGNALS: Record<string, Set<string>> = {
   ]),
   Admissions: new Set([
     "apply", "applying", "application", "admissions", "enrol", "enroll", "entry",
-    "joining", "register", "admission", "intake", "open", "day",
+    "joining", "register", "registration", "admission", "intake", "open", "day",
+    "date", "dates", "deadline", "deadlines", "when",
   ]),
   Academic: new Set([
     "subjects", "subject", "curriculum", "gcse", "a-level", "diploma", "academic",
