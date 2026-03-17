@@ -33,7 +33,7 @@ const STOP_WORDS = new Set([
   "if", "or", "and", "but", "not", "no", "nor",
   "in", "on", "at", "to", "for", "of", "by", "with", "from", "about",
   "can", "could", "will", "would", "shall", "should", "may", "might",
-  "so", "than", "too", "very", "just",
+  "so", "than", "too", "very", "just", "tell", "please", "know", "want",
 ]);
 
 /** Remove stop words from query tokens — preserves all tokens if every token is a stop word. */
@@ -56,6 +56,8 @@ const COMPOUND_TERMS: Record<string, string> = {
   "co curricular": "co-curricular",
   "sixth form": "sixth-form",
   "sixth-form": "sixth-form",
+  "get to": "get-to",
+  "getting to": "get-to",
 };
 
 function tokenize(text: string): string[] {
@@ -104,6 +106,9 @@ const SYNONYM_MAP: Record<string, string[]> = {
   joining:   ["admissions", "entry", "application", "enrol"],
   enrol:     ["admissions", "entry", "application", "joining"],
   enroll:    ["admissions", "entry", "application", "joining"],
+  gcse:      ["gcses", "curriculum", "subjects", "exam", "results"],
+  gcses:     ["gcse", "curriculum", "subjects", "exam", "results"],
+  offer:     ["curriculum", "subjects", "courses", "options"],
   subjects:  ["curriculum", "courses", "options", "gcse", "a-level"],
   subject:   ["curriculum", "courses", "options", "gcse", "a-level"],
   sport:     ["sports", "co-curricular", "activities", "facilities"],
@@ -112,6 +117,7 @@ const SYNONYM_MAP: Record<string, string[]> = {
   teacher:   ["staff", "faculty", "master"],
   teachers:  ["staff", "faculty", "masters"],
   "a-level": ["results", "grades", "gcse", "exam", "performance", "attainment"],
+  "sixth-form":["sixth", "curriculum", "a-level", "courses", "university", "destinations"],
   level:     ["a-level", "results", "grades", "exam"],
   grades:    ["results", "gcse", "a-level", "performance", "attainment"],
   grade:     ["results", "gcse", "a-level", "performance"],
@@ -123,9 +129,13 @@ const SYNONYM_MAP: Record<string, string[]> = {
   trip:      ["visits", "travel", "expedition", "tour"],
   trips:     ["visits", "travel", "expeditions", "tours"],
   contact:   ["address", "phone", "email", "telephone"],
-  location:  ["address", "directions", "map", "elstree"],
+  location:  ["address", "directions", "map", "elstree", "transport"],
+  directions:["transport", "location", "address", "map", "bus", "coach"],
+  "get-to":  ["directions", "transport", "location", "address", "bus", "coach", "travel"],
+  visit:     ["open", "day", "tour", "directions", "transport"],
+  visiting:  ["open", "day", "tour", "directions", "transport"],
   bus:       ["transport", "travel", "coach", "minibus"],
-  transport: ["bus", "travel", "coach", "minibus"],
+  transport: ["bus", "travel", "coach", "minibus", "directions"],
   uni:       ["university", "universities"],
   university:["uni"],
   universities:["uni"],
@@ -246,8 +256,8 @@ const SECTION_SIGNALS: Record<string, Set<string>> = {
     "date", "dates", "deadline", "deadlines", "when",
   ]),
   Academic: new Set([
-    "subjects", "subject", "curriculum", "gcse", "a-level", "diploma", "academic",
-    "exam", "exams", "grades", "grade", "results", "courses", "course", "sixth",
+    "subjects", "subject", "curriculum", "gcse", "gcses", "a-level", "diploma", "academic",
+    "exam", "exams", "grades", "grade", "results", "courses", "course", "sixth", "sixth-form", "offer",
   ]),
   "Co-Curricular": new Set([
     "sport", "sports", "club", "clubs", "activities", "trip", "trips", "co-curricular",
