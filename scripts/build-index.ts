@@ -109,7 +109,7 @@ async function buildIndex() {
     const wordCount = text.split(/\s+/).length;
     const estimatedTokens = Math.round(wordCount * 1.3);
 
-    if (estimatedTokens > 500) {
+    if (estimatedTokens > 900) {
       // Sub-split on paragraph boundaries
       const paragraphs = text.split(/\n\n+/);
       let buffer = "";
@@ -117,7 +117,7 @@ async function buildIndex() {
 
       for (const para of paragraphs) {
         const combined = buffer ? buffer + "\n\n" + para : para;
-        if (buffer && combined.split(/\s+/).length * 1.3 > 450) {
+        if (buffer && combined.split(/\s+/).length * 1.3 > 800) {
           const embedding = await embed(buffer);
           chunks.push({
             text: buffer,
